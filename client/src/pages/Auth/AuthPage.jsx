@@ -42,7 +42,7 @@ const AuthPage = ({ mode = 'login' }) => {
   const isLogin = mode === 'login';
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { isLoading, isError, isSuccess, message, isAuthenticated } = useSelector((state) => state.auth);
+  const { isLoading, isError, isSuccess, message, isAuthenticated, user } = useSelector((state) => state.auth);
 
   // Reset form when mode changes
   const {
@@ -75,10 +75,14 @@ const AuthPage = ({ mode = 'login' }) => {
 
     if (isSuccess || isAuthenticated) {
       setTimeout(() => {
-        navigate('/dashboard');
+        if (user?.role === 'vet') {
+          navigate('/clinic/dashboard');
+        } else {
+          navigate('/dashboard');
+        }
       }, 1000);
     }
-  }, [isError, isSuccess, isAuthenticated, message, navigate]);
+  }, [isError, isSuccess, isAuthenticated, message, navigate, user]);
 
   const passwordValue = watch('password', '');
 

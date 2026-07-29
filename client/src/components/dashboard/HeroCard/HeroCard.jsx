@@ -31,14 +31,6 @@ const HeroCard = () => {
           </div>
         </div>
 
-        {/* Top Right: Ask AI Button */}
-        <div>
-          <button className="bg-white text-primary font-bold px-6 py-3 rounded-xl flex items-center gap-2 hover:shadow-lg hover:scale-105 transition-all group shadow-md">
-            <Sparkles size={18} className="text-accent" />
-            Ask AI Assistant
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </button>
-        </div>
       </div>
 
       {/* BOTTOM ROW (Empty now, can be removed entirely if not needed, but keeping the div structure for now) */}

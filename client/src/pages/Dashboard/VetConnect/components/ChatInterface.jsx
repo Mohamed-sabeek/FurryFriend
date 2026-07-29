@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Bot, User, Send, Loader2, PlusCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Bot, User, Send, Loader2, PlusCircle, ArrowDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ClinicCards from './ClinicCards';
 import AppointmentConfirmCard from './AppointmentConfirmCard';
@@ -41,15 +41,93 @@ const LoadingIndicator = () => {
   );
 };
 
-const ChatInterface = ({ messages, isLoading, onSendMessage, onRegisterPet, onBookingComplete }) => {
+const ChatInterface = ({ conversationId, messages, isLoading, onSendMessage, onRegisterPet, onBookingComplete }) => {
   const [inputValue, setInputValue] = useState('');
   const chatContainerRef = useRef(null);
 
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  // Modern scroll behavior state
+  const [showNewMessagesBtn, setShowNewMessagesBtn] = useState(false);
+  const isNearBottomRef = useRef(true);
+  const prevConversationIdRef = useRef(conversationId);
+  const prevMessagesLengthRef = useRef(messages.length);
+  const scrollPositionsRef = useRef({});
+
+  const handleScroll = useCallback((e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+    isNearBottomRef.current = distanceFromBottom < 100;
+
+    // Save scroll position for the current conversation
+    if (conversationId) {
+      scrollPositionsRef.current[conversationId] = scrollTop;
     }
-  }, [messages, isLoading]);
+
+    if (isNearBottomRef.current && showNewMessagesBtn) {
+      setShowNewMessagesBtn(false);
+    }
+  }, [conversationId, showNewMessagesBtn]);
+
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    // 1. Handle Conversation Switch
+    if (conversationId !== prevConversationIdRef.current) {
+      prevConversationIdRef.current = conversationId;
+      prevMessagesLengthRef.current = messages.length;
+      
+      const savedPosition = scrollPositionsRef.current[conversationId];
+      
+      // We must wait for the DOM to render the new messages before setting scrollTop.
+      // A simple requestAnimationFrame ensures the new elements are in the DOM.
+      requestAnimationFrame(() => {
+        if (savedPosition !== undefined) {
+          container.scrollTop = savedPosition;
+          isNearBottomRef.current = (container.scrollHeight - container.scrollTop - container.clientHeight) < 100;
+        } else {
+          // New or unsaved conversation, jump to bottom
+          container.scrollTop = container.scrollHeight;
+          isNearBottomRef.current = true;
+        }
+      });
+      
+      setShowNewMessagesBtn(false);
+      return;
+    }
+
+    // 2. Handle Messages Change (Streaming or New Messages)
+    const isNewMessage = messages.length > prevMessagesLengthRef.current;
+    const lastMessage = messages[messages.length - 1];
+    const isUserMessage = lastMessage?.sender === 'user';
+    
+    prevMessagesLengthRef.current = messages.length;
+
+    if (isNewMessage && isUserMessage) {
+      // User sent a new message -> always force scroll to bottom
+      requestAnimationFrame(() => {
+        container.scrollTop = container.scrollHeight;
+        isNearBottomRef.current = true;
+        setShowNewMessagesBtn(false);
+      });
+    } else if (isNearBottomRef.current) {
+      // AI streaming or new AI message while user is near bottom -> auto scroll
+      container.scrollTop = container.scrollHeight;
+    } else if (isNewMessage && lastMessage?.sender === 'bot') {
+      // New AI message while user is reading history -> show button
+      setShowNewMessagesBtn(true);
+    }
+    
+  }, [messages, isLoading, conversationId]);
+
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
+    setShowNewMessagesBtn(false);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -61,10 +139,11 @@ const ChatInterface = ({ messages, isLoading, onSendMessage, onRegisterPet, onBo
 
   return (
     // flex-1 min-h-0: takes remaining height, never overflows the card
-    <div className="flex-1 flex flex-col min-h-0 bg-gray-50/50">
+    <div className="flex-1 flex flex-col min-h-0 bg-gray-50/50 relative">
       {/* Scrollable message area — flex-1 min-h-0 critical for overflow to work */}
       <div
         ref={chatContainerRef}
+        onScroll={handleScroll}
         className="flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-4 scroll-smooth custom-scrollbar"
       >
         {messages.map((msg, idx) => {
@@ -201,7 +280,21 @@ const ChatInterface = ({ messages, isLoading, onSendMessage, onRegisterPet, onBo
         {isLoading && !messages.some(m => m.isStreaming) && <LoadingIndicator />}
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 bg-white border-t border-gray-100 flex gap-2 shrink-0">
+      <AnimatePresence>
+        {showNewMessagesBtn && (
+          <motion.button 
+            initial={{ opacity: 0, y: 10, x: '-50%' }}
+            animate={{ opacity: 1, y: 0, x: '-50%' }}
+            exit={{ opacity: 0, y: 10, x: '-50%' }}
+            onClick={scrollToBottom}
+            className="absolute bottom-20 left-1/2 px-4 py-2 bg-primary text-white text-sm font-bold rounded-full shadow-lg flex items-center gap-2 hover:bg-primary-hover transition-colors z-10"
+          >
+            New messages <ArrowDown size={14} />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <form onSubmit={handleSubmit} className="p-4 bg-white border-t border-gray-100 flex gap-2 shrink-0 relative z-20">
         <input 
           type="text"
           value={inputValue}

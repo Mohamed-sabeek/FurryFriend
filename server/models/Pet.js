@@ -178,6 +178,15 @@ const petSchema = new mongoose.Schema(
       type: [String],
       default: []
     },
+    latestVisit: {
+      date: { type: Date },
+      diagnosis: { type: String },
+      doctor: { type: String },
+      weight: { type: Number },
+      temperature: { type: Number },
+      nextFollowUp: { type: Date },
+      appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }
+    },
     aiPreferences: {
       healthMonitoring: { type: Boolean, default: true },
       dietRecommendations: { type: Boolean, default: true },
@@ -191,7 +200,8 @@ const petSchema = new mongoose.Schema(
         default: null
       },
       generatedAt: { type: Date, default: null },
-      lastDataVersion: { type: Date, default: null }
+      lastDataVersion: { type: Date, default: null },
+      isOutdated: { type: Boolean, default: false }
     }
   },
   {

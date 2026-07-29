@@ -46,6 +46,21 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+// Fetch Profile
+export const fetchProfile = createAsyncThunk(
+  'auth/fetchProfile',
+  async (_, thunkAPI) => {
+    try {
+      const response = await api.get('/profile');
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || error.message
+      );
+    }
+  }
+);
+
 const initialState = {
   user: null,
   isAuthenticated: false,
@@ -64,6 +79,9 @@ const authSlice = createSlice({
       state.isError = false;
       state.isSuccess = false;
       state.message = '';
+    },
+    updateUser: (state, action) => {
+      state.user = { ...state.user, ...action.payload };
     }
   },
   extraReducers: (builder) => {
@@ -104,9 +122,13 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.isAuthenticated = false;
+      })
+      // Fetch Profile
+      .addCase(fetchProfile.fulfilled, (state, action) => {
+        state.user = action.payload.data;
       });
   }
 });
 
-export const { resetAuthStatus } = authSlice.actions;
+export const { resetAuthStatus, updateUser } = authSlice.actions;
 export default authSlice.reducer;

@@ -15,7 +15,7 @@ const HealthRecordsPage = () => {
   
   const [selectedPet, setSelectedPet] = useState(null);
   const [timelineData, setTimelineData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = React.useRef(null);
@@ -153,25 +153,18 @@ const HealthRecordsPage = () => {
         </div>
       </div>
 
-      {/* Split Screen Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Full Screen Layout for AI Health Report */}
+      <div className="w-full space-y-12">
+        <AIHealthSummary pet={selectedPet} />
         
-        {/* Left Column: Data & Timeline (Takes up 2/3 of space on large screens) */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="border-t border-gray-100 pt-8">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Medical History Timeline</h2>
           <MedicalTimeline 
             pet={selectedPet}
             timelineData={timelineData}
             loading={loading}
           />
         </div>
-
-        {/* Right Column: AI Health Summary */}
-        <div className="lg:col-span-1">
-          <div className="sticky top-6">
-            <AIHealthSummary petId={selectedPet?._id} refreshTrigger={timelineData} />
-          </div>
-        </div>
-
       </div>
 
       {/* Modals */}

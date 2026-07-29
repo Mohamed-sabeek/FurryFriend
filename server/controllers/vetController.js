@@ -30,6 +30,7 @@ exports.getAppointments = async (req, res, next) => {
   try {
     const all = await Appointment.find({ user: req.user._id })
       .populate('pet', 'petName species breed profileImage')
+      .populate('healthRecordId')
       .sort({ date: -1 });
 
     // Auto-complete past appointments
@@ -45,13 +46,30 @@ exports.getAppointments = async (req, res, next) => {
     }
 
     const upcoming = all.filter(a => ['Pending','Confirmed','Checked In'].includes(a.status));
-    const completed = all.filter(a => a.status === 'Completed');
     const cancelled = all.filter(a => a.status === 'Cancelled');
     const pending   = all.filter(a => a.status === 'Pending');
 
     // Helper: extract hospital name from notes
     const getHospital = (a) => a.notes?.replace('Booked via VetConnect AI. Hospital: ', '') || 'Clinic';
     const fmt = (a) => ({ ...a.toObject(), hospitalName: getHospital(a) });
+
+    const completedRaw = all.filter(a => a.status === 'Completed');
+    
+    // Fetch Medications and Vaccinations for completed appointments
+    const completedApptIds = completedRaw.map(a => a._id);
+    const Medication = require('../models/Medication');
+    const Vaccination = require('../models/Vaccination');
+    const [allMeds, allVaxs] = await Promise.all([
+      Medication.find({ appointmentId: { $in: completedApptIds } }),
+      Vaccination.find({ appointmentId: { $in: completedApptIds } })
+    ]);
+
+    const completed = completedRaw.map(appt => {
+      const apptObj = fmt(appt);
+      apptObj.medicines = allMeds.filter(m => m.appointmentId.toString() === appt._id.toString());
+      apptObj.vaccinations = allVaxs.filter(v => v.appointmentId.toString() === appt._id.toString());
+      return apptObj;
+    });
 
     res.status(200).json({
       success: true,
@@ -64,7 +82,7 @@ exports.getAppointments = async (req, res, next) => {
       },
       data: {
         upcoming: upcoming.map(fmt),
-        completed: completed.map(fmt),
+        completed: completed,
         cancelled: cancelled.map(fmt),
         all: all.map(fmt)
       }
@@ -145,7 +163,7 @@ exports.confirmAIBooking = async (req, res, next) => {
       reason: session.reason,
       date: parsedDate,
       time: session.time || 'Morning',
-      status: 'Confirmed',
+      status: 'Pending',
       notes: `Booked via VetConnect AI. Hospital: ${clinic.name}`
     });
 
@@ -395,6 +413,43 @@ exports.addVisitDetails = async (req, res, next) => {
     await appointment.save();
 
     res.status(200).json({ success: true, data: healthRecord });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get Full Medical Report for an Appointment
+// @route   GET /api/vet/appointments/:id/medical-report
+// @access  Private
+exports.getMedicalReport = async (req, res, next) => {
+  try {
+    const appointmentId = req.params.id;
+    const appointment = await Appointment.findById(appointmentId)
+      .populate('pet', 'petName species breed profileImage age gender weight')
+      .populate('clinic', 'name address phone')
+      .populate('healthRecordId');
+
+    if (!appointment) return res.status(404).json({ success: false, error: 'Appointment not found' });
+    if (appointment.user.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ success: false, error: 'Not authorized' });
+    }
+
+    const Medication = require('../models/Medication');
+    const Vaccination = require('../models/Vaccination');
+
+    const [medicines, vaccinations] = await Promise.all([
+      Medication.find({ appointmentId }),
+      Vaccination.find({ appointmentId })
+    ]);
+
+    const report = {
+      appointment,
+      healthRecord: appointment.healthRecordId,
+      medicines,
+      vaccinations
+    };
+
+    res.status(200).json({ success: true, data: report });
   } catch (error) {
     next(error);
   }

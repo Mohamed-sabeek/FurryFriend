@@ -8,7 +8,8 @@ const {
   confirmAIBooking,
   getVets,
   getClinics,
-  addVisitDetails
+  addVisitDetails,
+  getMedicalReport
 } = require('../controllers/vetController');
 const { protect } = require('../middleware/auth');
 
@@ -29,6 +30,7 @@ router
 
 router.patch('/appointments/:id/cancel', cancelAppointment);
 router.post('/appointments/:id/visit-details', addVisitDetails);
+router.get('/appointments/:id/medical-report', getMedicalReport);
 router.post('/appointments/confirm-ai', confirmAIBooking);
 
 router.get('/vets', getVets);

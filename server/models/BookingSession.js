@@ -1,12 +1,13 @@
 const mongoose = require('mongoose');
+const BOOKING_STATES = require('../constants/bookingStates');
 
 const bookingSessionSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   conversationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Conversation', required: true },
   state: { 
     type: String, 
-    enum: ['SELECT_PET', 'COLLECT_REASON', 'COLLECT_DATE', 'COLLECT_TIME', 'SHOW_CLINICS', 'CONFIRM_BOOKING'],
-    default: 'SELECT_PET'
+    enum: Object.values(BOOKING_STATES),
+    default: BOOKING_STATES.SELECT_PET
   },
   petId: { type: mongoose.Schema.Types.ObjectId, ref: 'Pet' },
   petName: { type: String },

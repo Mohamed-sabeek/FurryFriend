@@ -13,10 +13,11 @@ const getDashboardData = async (req, res, next) => {
     const pets = await Pet.find({ owner: userId }).sort({ createdAt: -1 });
 
     // Fetch appointment count
-    const upcomingAppointmentsCount = await Appointment.countDocuments({
-      user: userId,
-      status: { $in: ['Pending', 'Confirmed'] }
-    });
+    const totalAppointments = await Appointment.countDocuments({ user: userId });
+
+    // Fetch health reports count
+    const HealthRecord = require('../models/HealthRecord');
+    const healthReportsCount = await HealthRecord.countDocuments({ user: userId });
 
     // In a real application, we would fetch actual orders, etc.
     // For now, we return placeholder counts and data structures to satisfy the UI
@@ -29,8 +30,8 @@ const getDashboardData = async (req, res, next) => {
       },
       stats: {
         totalPets: pets.length,
-        upcomingAppointments: upcomingAppointmentsCount,
-        healthReports: 0, // Placeholder
+        upcomingAppointments: totalAppointments,
+        healthReports: healthReportsCount,
         activeOrders: 0 // Placeholder
       },
       pets,

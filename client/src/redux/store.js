@@ -3,6 +3,9 @@ import { persistStore, persistReducer } from 'redux-persist';
 import authReducer from './slices/authSlice';
 import dashboardReducer from './slices/dashboardSlice';
 import petReducer from './slices/petSlice';
+import productReducer from './slices/productSlice';
+import cartReducer from './slices/cartSlice';
+import orderReducer from './slices/orderSlice';
 
 // Custom storage to fix Vite + Redux Persist compatibility issue
 const customStorage = {
@@ -20,7 +23,10 @@ const customStorage = {
 const rootReducer = combineReducers({
   auth: authReducer,
   dashboard: dashboardReducer,
-  pets: petReducer
+  pets: petReducer,
+  products: productReducer,
+  cart: cartReducer,
+  orders: orderReducer
 });
 
 const persistConfig = {

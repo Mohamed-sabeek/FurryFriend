@@ -15,6 +15,13 @@ const vetRoutes = require('./routes/vetRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const mapsRoutes = require('./routes/mapsRoutes');
 const healthRecordRoutes = require('./routes/healthRecordRoutes');
+const nutritionRoutes = require('./routes/nutriRoutes');
+const waterRoutes = require('./routes/waterRoutes');
+const productRoutes = require('./routes/productRoutes');
+const cartRoutes = require('./routes/cartRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const clinicRoutes = require('./routes/clinicRoutes');
 
 // Load env vars
 dotenv.config();
@@ -62,8 +69,15 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/pets', petRoutes);
 app.use('/api/vet', vetRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/nutrition', nutritionRoutes);
 app.use('/api/maps', mapsRoutes);
 app.use('/api/health-records', healthRecordRoutes);
+app.use('/api/water', waterRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/cart', cartRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/clinic', clinicRoutes);
 
 // 404 handler
 app.use(notFound);

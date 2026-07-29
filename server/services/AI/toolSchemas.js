@@ -1,3 +1,5 @@
+const BOOKING_STATES = require('../../constants/bookingStates');
+
 const updateBookingStateSchema = {
   type: "function",
   function: {
@@ -8,7 +10,7 @@ const updateBookingStateSchema = {
       properties: {
         state: { 
           type: "string", 
-          enum: ["COLLECT_REASON", "COLLECT_DATE", "COLLECT_TIME", "SHOW_CLINICS"],
+          enum: Object.values(BOOKING_STATES),
           description: "The next state to advance to" 
         },
         petName: { type: "string", description: "Extracted pet name (if any)" },

@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, Clock, MapPin, Phone, AlertTriangle, CheckCircle2,
   XCircle, RefreshCw, ChevronRight, Navigation2, Video,
-  Home, Star, PawPrint, Bell, X, Stethoscope, Plus
+  Home, Star, PawPrint, Bell, X, Stethoscope, Plus, FileText
 } from 'lucide-react';
 import api from '../../../../utils/axios';
 import toast from 'react-hot-toast';
 import MedicalVisitModal from './MedicalVisitModal';
+import MedicalReportModal from './MedicalReportModal';
 
 // ─── Species emoji map ────────────────────────────────────────────────────────
 const SPECIES_EMOJI = {
@@ -19,9 +20,11 @@ const SPECIES_EMOJI = {
 const STATUS_CONFIG = {
   Upcoming:   { color: 'blue',   bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200',   dot: 'bg-blue-500'   },
   Confirmed:  { color: 'blue',   bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200',   dot: 'bg-blue-500'   },
+  Accepted:   { color: 'blue',   bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200',   dot: 'bg-blue-500'   },
   Pending:    { color: 'orange', bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', dot: 'bg-orange-500' },
   Completed:  { color: 'green',  bg: 'bg-green-50',  text: 'text-green-700',  border: 'border-green-200',  dot: 'bg-green-500'  },
   Cancelled:  { color: 'red',    bg: 'bg-red-50',    text: 'text-red-700',    border: 'border-red-200',    dot: 'bg-red-500'    },
+  Rejected:   { color: 'red',    bg: 'bg-red-50',    text: 'text-red-700',    border: 'border-red-200',    dot: 'bg-red-500'    },
   'Checked In': { color: 'purple', bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', dot: 'bg-purple-500' }
 };
 
@@ -29,7 +32,7 @@ const STATUS_CONFIG = {
 const TIMELINE = ['Booked', 'Confirmed', 'Reminder Sent', 'Completed'];
 const getTimelineIndex = (status) => {
   if (status === 'Pending') return 0;
-  if (status === 'Confirmed' || status === 'Checked In') return 2;
+  if (status === 'Confirmed' || status === 'Checked In' || status === 'Accepted') return 2;
   if (status === 'Completed') return 3;
   return 0;
 };
@@ -58,7 +61,7 @@ const StatCard = ({ label, count, icon: Icon, color }) => (
 );
 
 // ─── Appointment Card ─────────────────────────────────────────────────────────
-const AppointmentCard = ({ appointment, onCancel, onRefresh, onAddVisit }) => {
+const AppointmentCard = ({ appointment, onCancel, onRefresh, onAddVisit, onViewReport }) => {
   const pet = appointment.pet || {};
   const petName = pet.petName || appointment.petName || 'Your pet';
   const species = pet.species || '';
@@ -87,20 +90,13 @@ const AppointmentCard = ({ appointment, onCancel, onRefresh, onAddVisit }) => {
       className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${cfg.border} relative`}
     >
       {/* Reminder strip */}
-      {within24h && appointment.status !== 'Completed' && appointment.status !== 'Cancelled' && (
+      {within24h && appointment.status !== 'Completed' && appointment.status !== 'Cancelled' && appointment.status !== 'Rejected' && (
         <div className="bg-amber-50 border-b border-amber-100 px-4 py-2 flex items-center gap-2">
           <Bell size={14} className="text-amber-500 animate-pulse" />
           <span className="text-xs font-semibold text-amber-700">Reminder — appointment is within 24 hours!</span>
         </div>
       )}
       
-      {/* Missing Visit Details Warning Strip */}
-      {appointment.status === 'Completed' && !appointment.hasVisitDetails && (
-        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 flex items-center gap-2">
-          <AlertTriangle size={14} className="text-primary animate-pulse" />
-          <span className="text-xs font-semibold text-primary">Please add visit details to update health records.</span>
-        </div>
-      )}
 
       <div className="p-5">
         {/* Header row */}
@@ -168,7 +164,7 @@ const AppointmentCard = ({ appointment, onCancel, onRefresh, onAddVisit }) => {
         </div>
 
         {/* Timeline */}
-        {appointment.status !== 'Cancelled' && (
+        {appointment.status !== 'Cancelled' && appointment.status !== 'Rejected' && appointment.status !== 'Completed' && (
           <div className="mb-4">
             <div className="flex items-center justify-between relative">
               <div className="absolute left-3 right-3 top-3 h-0.5 bg-gray-100 z-0" />
@@ -192,19 +188,43 @@ const AppointmentCard = ({ appointment, onCancel, onRefresh, onAddVisit }) => {
           </div>
         )}
 
+        {/* Short Consultation Summary for Completed Appointments */}
+        {appointment.status === 'Completed' && appointment.healthRecordId && (
+          <div className="mb-4 bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-500 uppercase">Diagnosis</span>
+              <span className="text-xs font-bold text-gray-800 truncate max-w-[150px]">
+                {appointment.healthRecordId.diagnosis || 'General Checkup'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-gray-500 uppercase">Doctor</span>
+              <span className="text-xs font-medium text-gray-700">Dr. {appointment.healthRecordId.doctor || 'Vet'}</span>
+            </div>
+            <div className="flex items-center gap-2 pt-2 border-t border-gray-100">
+              {appointment.medicines?.length > 0 && (
+                <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded flex items-center gap-1">
+                  💊 {appointment.medicines.length} Meds
+                </span>
+              )}
+              {appointment.vaccinations?.length > 0 && (
+                <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded flex items-center gap-1">
+                  💉 {appointment.vaccinations.length} Vax
+                </span>
+              )}
+              {appointment.healthRecordId.nextFollowUp && (
+                <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded flex items-center gap-1 ml-auto">
+                  📅 Follow-up: {new Date(appointment.healthRecordId.nextFollowUp).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex gap-2 flex-wrap">
-          {appointment.status !== 'Cancelled' && appointment.status !== 'Completed' && (
+          {appointment.status !== 'Cancelled' && appointment.status !== 'Rejected' && appointment.status !== 'Completed' && (
             <>
-              <a
-                href={`https://maps.google.com/?q=${encodeURIComponent(hospitalName)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100 transition-colors"
-              >
-                <Navigation2 size={12} />
-                Directions
-              </a>
               <button
                 onClick={handleCancel}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs font-medium hover:bg-red-100 transition-colors"
@@ -214,22 +234,13 @@ const AppointmentCard = ({ appointment, onCancel, onRefresh, onAddVisit }) => {
               </button>
             </>
           )}
-          {appointment.status === 'Completed' && !appointment.hasVisitDetails && (
-            <button 
-              onClick={() => onAddVisit(appointment)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-bold hover:bg-primary/20 transition-colors"
+          {appointment.status === 'Completed' && appointment.healthRecordId && (
+            <button
+              onClick={() => onViewReport(appointment._id)}
+              className="flex items-center justify-center w-full gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-sm font-semibold hover:bg-primary-dark transition-colors shadow-sm"
             >
-              <Plus size={12} />
-              Add Visit Details
-            </button>
-          )}
-          {appointment.status === 'Completed' && appointment.hasVisitDetails && (
-            <button 
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold cursor-not-allowed"
-              title="Visit details already added"
-            >
-              <CheckCircle2 size={12} />
-              Visit Details Added
+              <FileText size={16} />
+              View Full Medical Report
             </button>
           )}
         </div>
@@ -244,6 +255,7 @@ const AppointmentDashboard = ({ refreshTrigger, onFindVet }) => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('upcoming');
   const [selectedVisitAppt, setSelectedVisitAppt] = useState(null);
+  const [reportApptId, setReportApptId] = useState(null);
 
   const fetchAppointments = useCallback(async () => {
     try {
@@ -362,6 +374,7 @@ const AppointmentDashboard = ({ refreshTrigger, onFindVet }) => {
                     appointment={appt}
                     onRefresh={fetchAppointments}
                     onAddVisit={setSelectedVisitAppt}
+                    onViewReport={setReportApptId}
                   />
                 ))}
               </motion.div>
@@ -379,6 +392,14 @@ const AppointmentDashboard = ({ refreshTrigger, onFindVet }) => {
             setSelectedVisitAppt(null);
             fetchAppointments();
           }}
+        />
+      )}
+
+      {reportApptId && (
+        <MedicalReportModal
+          isOpen={true}
+          appointmentId={reportApptId}
+          onClose={() => setReportApptId(null)}
         />
       )}
     </div>

@@ -1,3 +1,5 @@
+const BOOKING_STATES = require('../../constants/bookingStates');
+
 const buildVetAgentPrompt = (userDetails, location = {}, pets = [], appointments = [], bookingSession = null) => {
 
   const currentDate = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -17,7 +19,7 @@ const buildVetAgentPrompt = (userDetails, location = {}, pets = [], appointments
   }
 
   // Inject current booking session state
-  const state = bookingSession ? bookingSession.state : 'SELECT_PET';
+  const state = bookingSession ? bookingSession.state : BOOKING_STATES.SELECT_PET;
   contextString += `\nCURRENT BOOKING STATE: ${state}\n`;
   if (bookingSession) {
     contextString += `Collected Data:\n`;
@@ -48,36 +50,37 @@ Your goal is to extract the required information for the CURRENT BOOKING STATE, 
 - The state machine MUST be updated. Do NOT just output text without calling the tool.
 - However, in your TEXT response to the user, NEVER mention internal state names (like SELECT_PET, COLLECT_REASON, COLLECT_DATE, COLLECT_TIME).
 - Respond naturally and conversationally. Do NOT say "State updated to..." or "Current state is...".
+- NEVER invent booking states. You are only allowed to use the following booking states when calling updateBookingState: ${Object.values(BOOKING_STATES).join(', ')}.
 
 CURRENT STATE: ${state}
 
-If State is SELECT_PET:
+If State is ${BOOKING_STATES.SELECT_PET}:
 - Ask the user which pet the appointment is for.
 - Use [OPTIONS: ${petOptions}]
-- If the user provides the pet, you MUST call the "updateBookingState" tool with state="COLLECT_REASON" and petName.
+- If the user provides the pet, you MUST call the "updateBookingState" tool with state="${BOOKING_STATES.COLLECT_REASON}" and petName.
 
-If State is COLLECT_REASON:
+If State is ${BOOKING_STATES.COLLECT_REASON}:
 - Ask the user the reason for the visit.
 - Use [OPTIONS: General Checkup|Vaccination|Illness|Injury]
-- If the user provides the reason, you MUST call the "updateBookingState" tool with state="COLLECT_DATE" and reason.
+- If the user provides the reason, you MUST call the "updateBookingState" tool with state="${BOOKING_STATES.COLLECT_DATE}" and reason.
 
-If State is COLLECT_DATE:
+If State is ${BOOKING_STATES.COLLECT_DATE}:
 - Ask the user for their preferred date.
 - Use [OPTIONS: Today|Tomorrow|Next Week]
-- If the user provides the date, you MUST call the "updateBookingState" tool with state="COLLECT_TIME" and date.
+- If the user provides the date, you MUST call the "updateBookingState" tool with state="${BOOKING_STATES.COLLECT_TIME}" and date.
 
-If State is COLLECT_TIME:
+If State is ${BOOKING_STATES.COLLECT_TIME}:
 - Ask the user for their preferred time.
 - Use [OPTIONS: Morning|Afternoon|Evening]
-- If the user provides the time, you MUST call the "updateBookingState" tool with state="SHOW_CLINICS" and time.
+- If the user provides the time, you MUST call the "updateBookingState" tool with state="${BOOKING_STATES.SHOW_CLINICS}" and time.
 
-If State is SHOW_CLINICS:
+If State is ${BOOKING_STATES.SHOW_CLINICS}:
 - The backend has already found clinics.
 - Do NOT call any tools.
 - Acknowledge that you found clinics and ask the user to choose one from the cards displayed below.
 - Example: "Great! I found a few nearby veterinary clinics. Please choose one below."
 
-If State is CONFIRM_BOOKING:
+If State is ${BOOKING_STATES.CONFIRM_BOOKING}:
 - The UI is handling confirmation. Acknowledge and ask them to confirm via the UI.
 - Use [ACTION: CONFIRM_BOOKING]
 

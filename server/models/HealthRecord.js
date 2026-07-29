@@ -11,6 +11,13 @@ const healthRecordSchema = new mongoose.Schema({
   diagnosis: { type: String },
   treatment: { type: String },
   notes: { type: String },
+  weight: { type: Number }, // in kg or standard unit
+  temperature: { type: Number }, // in Fahrenheit or Celsius
+  heartRate: { type: Number }, // bpm
+  allergies: [{ type: String }],
+  dietAdvice: { type: String },
+  exerciseAdvice: { type: String },
+  followUpDate: { type: Date },
   prescriptionFiles: [{ type: String }], // Cloudinary URLs
   reportFiles: [{ type: String }], // Cloudinary URLs
   appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }

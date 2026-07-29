@@ -23,7 +23,7 @@ const registerUser = async (req, res, next) => {
     });
 
     if (user) {
-      const token = generateToken(user._id);
+      const token = generateToken(user._id, user.role, user.clinicId);
       setTokenCookie(res, token);
       
       res.status(201).json({
@@ -32,7 +32,8 @@ const registerUser = async (req, res, next) => {
           _id: user._id,
           fullName: user.fullName,
           email: user.email,
-          role: user.role
+          role: user.role,
+          clinicId: user.clinicId
         },
         token
       });
@@ -70,7 +71,7 @@ const loginUser = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    const token = generateToken(user._id);
+    const token = generateToken(user._id, user.role, user.clinicId);
     setTokenCookie(res, token);
 
     res.status(200).json({
@@ -80,7 +81,8 @@ const loginUser = async (req, res, next) => {
         fullName: user.fullName,
         email: user.email,
         role: user.role,
-        profileImage: user.profileImage
+        profileImage: user.profileImage,
+        clinicId: user.clinicId
       },
       token
     });
@@ -124,9 +126,50 @@ const logoutUser = async (req, res, next) => {
   }
 };
 
+// ─── Update Profile ────────────────────────────────────────────────────────────
+// @desc    Update user profile
+// @route   PUT /api/auth/me
+// @access  Private
+const updateProfile = async (req, res) => {
+  try {
+    const { fullName, phone, location, emergencyContact } = req.body;
+
+    // We restrict email and password updates from this route for security
+    const fieldsToUpdate = {
+      fullName,
+      phone,
+      location,
+      emergencyContact
+    };
+
+    // Remove undefined fields
+    Object.keys(fieldsToUpdate).forEach(key => {
+      if (fieldsToUpdate[key] === undefined) {
+        delete fieldsToUpdate[key];
+      }
+    });
+
+    const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
+      new: true,
+      runValidators: true
+    }).select('-password');
+
+    res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getMe,
-  logoutUser
+  logoutUser,
+  updateProfile
 };

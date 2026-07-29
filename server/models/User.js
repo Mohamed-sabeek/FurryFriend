@@ -32,6 +32,36 @@ const userSchema = new mongoose.Schema(
       type: String,
       maxlength: [20, 'Phone number can not be longer than 20 characters']
     },
+    location: {
+      type: String,
+      default: ''
+    },
+    emergencyContact: {
+      type: String,
+      default: ''
+    },
+    dob: {
+      type: Date
+    },
+    gender: {
+      type: String,
+      enum: ['Male', 'Female', 'Other', 'Prefer not to say']
+    },
+    addresses: [
+      {
+        label: { type: String, default: 'Home' },
+        houseNumber: String,
+        street: String,
+        area: String,
+        city: String,
+        district: String,
+        state: String,
+        country: { type: String, default: 'India' },
+        pincode: String,
+        landmark: String,
+        isDefault: { type: Boolean, default: false }
+      }
+    ],
     role: {
       type: String,
       enum: ['user', 'vet', 'admin'],
@@ -42,8 +72,11 @@ const userSchema = new mongoose.Schema(
       default: false
     },
     verificationToken: String,
-    resetPasswordToken: String,
-    resetPasswordExpires: Date
+    resetPasswordExpires: Date,
+    clinicId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Clinic'
+    }
   },
   {
     timestamps: true
@@ -51,9 +84,9 @@ const userSchema = new mongoose.Schema(
 );
 
 // Encrypt password using bcrypt
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
   if (!this.isModified('password')) {
-    next();
+    return;
   }
 
   const salt = await bcrypt.genSalt(10);

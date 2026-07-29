@@ -278,16 +278,8 @@ const VetConnectPage = () => {
   useEffect(() => {
     dispatch(fetchPets());
 
-    // Auto-load latest conversation if we don't have one
-    if (!activeConversationId) {
-      api.get('/ai/conversations').then(res => {
-        const convs = res.data.data;
-        if (convs && convs.length > 0) {
-          const latestConvId = convs[0].id;
-          handleSelectConversation(latestConvId);
-        }
-      }).catch(err => console.error("Failed to fetch latest conversations", err));
-    }
+    // Default is a new chat (activeConversationId remains null).
+    // The user can explicitly select old conversations from the sidebar.
 
     const petRegistered = searchParams.get('petRegistered');
     if (petRegistered) {
@@ -338,6 +330,7 @@ const VetConnectPage = () => {
         <div className="flex-1 flex flex-col min-h-0 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
 
           <ChatInterface
+            conversationId={activeConversationId}
             messages={messages}
             isLoading={isLoading}
             onSendMessage={handleSendMessage}

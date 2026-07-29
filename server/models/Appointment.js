@@ -22,7 +22,7 @@ const appointmentSchema = new mongoose.Schema({
   time: { type: String, required: true },
   status: {
     type: String,
-    enum: ['Pending', 'Confirmed', 'Checked In', 'Completed', 'Cancelled'],
+    enum: ['Pending', 'Confirmed', 'Checked In', 'Completed', 'Cancelled', 'Accepted', 'Rejected'],
     default: 'Pending'
   },
   isEmergency: { type: Boolean, default: false },
@@ -30,7 +30,13 @@ const appointmentSchema = new mongoose.Schema({
   homeVisit: { type: Boolean, default: false },
   notes: { type: String },
   hasVisitDetails: { type: Boolean, default: false },
-  healthRecordId: { type: mongoose.Schema.Types.ObjectId, ref: 'HealthRecord' }
+  healthRecordId: { type: mongoose.Schema.Types.ObjectId, ref: 'HealthRecord' },
+  acceptedAt: { type: Date },
+  completedAt: { type: Date },
+  rejectedAt: { type: Date },
+  acceptedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  doctorName: { type: String },
+  consultationCompleted: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Appointment', appointmentSchema);

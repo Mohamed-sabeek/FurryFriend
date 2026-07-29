@@ -15,7 +15,8 @@ import {
   Bell, 
   User, 
   Settings, 
-  LogOut 
+  LogOut,
+  Package
 } from 'lucide-react';
 import logo from '../../../assets/furryfriend.png';
 import { motion } from 'framer-motion';
@@ -23,13 +24,14 @@ import { motion } from 'framer-motion';
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { name: 'My Pets', path: '/dashboard/pets', icon: Dog },
-  { name: 'VetConnect AI', path: '/dashboard/ai', icon: Bot },
   { name: 'My Appointments', path: '/dashboard/appointments', icon: CalendarCheck },
-  { name: 'Health Records', path: '/dashboard/health-records', icon: FileHeart },
-  { name: 'Nutrition Plans', path: '/dashboard/nutrition', icon: Apple },
-  { name: 'Marketplace', path: '/dashboard/marketplace', icon: ShoppingBag },
-  { name: 'Grooming', path: '/dashboard/grooming', icon: Scissors },
-  { name: 'Boarding', path: '/dashboard/boarding', icon: Home },
+  { name: 'VetConnect AI', path: '/dashboard/ai', icon: Bot },
+  { name: 'PetHealth AI', path: '/dashboard/health-records', icon: FileHeart },
+  { name: 'NutriPaws AI', path: '/dashboard/nutrition', icon: Apple },
+  { name: 'PetCommerce AI', path: '/commerce', icon: ShoppingBag },
+  { name: 'My Orders', path: '/commerce/orders', icon: Package },
+  { name: 'GroomEase AI', path: '/dashboard/grooming', icon: Scissors },
+  { name: 'TravelPaws AI', path: '/dashboard/boarding', icon: Home },
   { name: 'Profile', path: '/dashboard/profile', icon: User },
   { name: 'Settings', path: '/dashboard/settings', icon: Settings },
 ];
@@ -51,7 +53,7 @@ const Sidebar = () => {
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 px-4 py-6">
+      <div className="flex-1 px-4 py-6 overflow-y-auto hide-scrollbar">
         <ul className="space-y-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -59,7 +61,7 @@ const Sidebar = () => {
               <li key={item.name}>
                 <NavLink
                   to={item.path}
-                  end={item.path === '/dashboard'}
+                  end={item.path === '/dashboard' || item.path === '/commerce'}
                   className={({ isActive }) => 
                     `flex items-center px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
                       isActive 

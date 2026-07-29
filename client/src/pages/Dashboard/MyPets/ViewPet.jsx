@@ -5,6 +5,7 @@ import { getPetById, clearSelectedPet } from '../../../redux/slices/petSlice';
 import { ArrowLeft, Edit3, HeartPulse, ShieldCheck, Calendar, Activity, Info, AlertTriangle, Syringe, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import AddPetModal from '../../../components/pets/AddPetModal';
+import MedicalReportModal from '../Appointments/components/MedicalReportModal';
 
 const ViewPet = () => {
   const { id } = useParams();
@@ -12,6 +13,7 @@ const ViewPet = () => {
   const dispatch = useDispatch();
   const { selectedPet: pet, loading, error } = useSelector((state) => state.pets);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [reportApptId, setReportApptId] = useState(null);
 
   const calculateAge = (dob) => {
     if (!dob) return 'Unknown';
@@ -185,6 +187,56 @@ const ViewPet = () => {
         {/* Right Column: Health & Notes */}
         <div className="lg:col-span-2 space-y-6">
           
+          {pet.latestVisit && pet.latestVisit.date && (
+            <div className="bg-gradient-to-br from-indigo-500 to-primary text-white rounded-3xl p-6 shadow-lg mb-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-10">
+                <HeartPulse size={120} />
+              </div>
+              <h3 className="font-poppins font-bold text-lg mb-4 flex items-center gap-2 relative z-10">
+                <Activity size={20} />
+                Latest Consultation
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 relative z-10">
+                <div className="bg-white/10 rounded-xl p-3 border border-white/20">
+                  <p className="text-white/70 text-xs font-bold uppercase tracking-wider">Date</p>
+                  <p className="font-bold">{new Date(pet.latestVisit.date).toLocaleDateString()}</p>
+                </div>
+                <div className="bg-white/10 rounded-xl p-3 border border-white/20 col-span-2">
+                  <p className="text-white/70 text-xs font-bold uppercase tracking-wider">Diagnosis</p>
+                  <p className="font-bold text-sm leading-snug">{pet.latestVisit.diagnosis || 'General Checkup'}</p>
+                </div>
+                <div className="bg-white/10 rounded-xl p-3 border border-white/20">
+                  <p className="text-white/70 text-xs font-bold uppercase tracking-wider">Doctor</p>
+                  <p className="font-bold text-sm leading-snug">{pet.latestVisit.doctor?.startsWith('Dr.') ? pet.latestVisit.doctor : `Dr. ${pet.latestVisit.doctor || 'Vet'}`}</p>
+                </div>
+                <div className="bg-white/10 rounded-xl p-3 border border-white/20">
+                  <p className="text-white/70 text-xs font-bold uppercase tracking-wider">Weight</p>
+                  <p className="font-bold">{pet.latestVisit.weight ? `${pet.latestVisit.weight} kg` : 'N/A'}</p>
+                </div>
+                <div className="bg-white/10 rounded-xl p-3 border border-white/20">
+                  <p className="text-white/70 text-xs font-bold uppercase tracking-wider">Temp</p>
+                  <p className="font-bold">{pet.latestVisit.temperature ? `${pet.latestVisit.temperature}°` : 'N/A'}</p>
+                </div>
+                <div className="bg-white/10 rounded-xl p-3 border border-white/20 col-span-2">
+                  <p className="text-white/70 text-xs font-bold uppercase tracking-wider">Next Follow-Up</p>
+                  <p className="font-bold">{pet.latestVisit.nextFollowUp ? new Date(pet.latestVisit.nextFollowUp).toLocaleDateString() : 'None scheduled'}</p>
+                </div>
+              </div>
+              
+              {pet.latestVisit.appointmentId && (
+                <div className="relative z-10 mt-5 pt-5 border-t border-white/20">
+                  <button
+                    onClick={() => setReportApptId(pet.latestVisit.appointmentId)}
+                    className="flex items-center justify-center w-full gap-2 px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-xl text-sm font-semibold transition-colors shadow-sm border border-white/30"
+                  >
+                    <FileText size={16} />
+                    View Full Medical Report
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Health & Medical */}
           <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
             <h3 className="font-poppins font-bold text-gray-800 text-xl mb-6 flex items-center gap-2">
@@ -298,6 +350,14 @@ const ViewPet = () => {
         onClose={() => setIsEditModalOpen(false)} 
         editData={pet} 
       />
+
+      {reportApptId && (
+        <MedicalReportModal
+          isOpen={true}
+          appointmentId={reportApptId}
+          onClose={() => setReportApptId(null)}
+        />
+      )}
     </div>
   );
 };

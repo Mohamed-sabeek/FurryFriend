@@ -10,6 +10,8 @@ const Clinic = require('../../models/Clinic');
 const BookingSession = require('../../models/BookingSession');
 const mongoose = require('mongoose');
 
+const BOOKING_STATES = require('../../constants/bookingStates');
+
 let _currentUserId = null;
 let _currentConversationId = null;
 
@@ -21,6 +23,16 @@ const executeUpdateBookingState = async (args) => {
 
   if (!_currentUserId || !_currentConversationId) {
     return { success: false, message: 'User or conversation context not available.' };
+  }
+
+  // Graceful state validation fallback
+  const validStates = Object.values(BOOKING_STATES);
+  if (!validStates.includes(state)) {
+    console.warn(`[VetConnect AI] Invalid state received from LLM: ${state}. Ignoring update.`);
+    return { 
+      success: false, 
+      message: `Invalid state '${state}'. You must only use one of the following states: ${validStates.join(', ')}. Please retry your action using a valid state.` 
+    };
   }
 
   try {

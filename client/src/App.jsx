@@ -15,7 +15,18 @@ import GroomingPage from './pages/Dashboard/Grooming/GroomingPage';
 import BoardingPage from './pages/Dashboard/Boarding/BoardingPage';
 import ProfilePage from './pages/Dashboard/Profile/ProfilePage';
 import SettingsPage from './pages/Dashboard/Settings/SettingsPage';
+import PetCommerceHome from './pages/PetCommerceHome';
+import ProductDetails from './pages/ProductDetails';
+import CartPage from './pages/CartPage';
+import CheckoutPage from './pages/CheckoutPage';
+import MyOrders from './pages/MyOrders';
+import OrderTracking from './pages/OrderTracking';
 import ProtectedRoute from './components/routing/ProtectedRoute';
+import ClinicLayout from './pages/Clinic/ClinicLayout';
+import ClinicDashboard from './pages/Clinic/ClinicDashboard';
+import ClinicAppointments from './pages/Clinic/ClinicAppointments';
+import ClinicProfile from './pages/Clinic/ClinicProfile';
+import ConsultationForm from './pages/Clinic/ConsultationForm';
 import './index.css';
 
 function App() {
@@ -42,6 +53,25 @@ function App() {
             <Route path="boarding" element={<BoardingPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="settings" element={<SettingsPage />} />
+          </Route>
+
+          <Route path="/commerce" element={<DashboardLayout />}>
+            <Route index element={<PetCommerceHome />} />
+            <Route path="product/:id" element={<ProductDetails />} />
+            <Route path="cart" element={<CartPage />} />
+            <Route path="checkout" element={<CheckoutPage />} />
+            <Route path="orders" element={<MyOrders />} />
+            <Route path="track/:id" element={<OrderTracking />} />
+          </Route>
+        </Route>
+
+        {/* Clinic Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['vet', 'admin']} />}>
+          <Route path="/clinic" element={<ClinicLayout />}>
+            <Route path="dashboard" element={<ClinicDashboard />} />
+            <Route path="appointments" element={<ClinicAppointments />} />
+            <Route path="appointments/:id/consultation" element={<ConsultationForm />} />
+            <Route path="profile" element={<ClinicProfile />} />
           </Route>
         </Route>
       </Routes>
