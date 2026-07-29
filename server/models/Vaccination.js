@@ -13,7 +13,9 @@ const vaccinationSchema = new mongoose.Schema({
     type: String, 
     enum: ['Completed', 'Upcoming', 'Overdue'],
     default: 'Completed'
-  }
+  },
+  appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' },
+  healthRecordId: { type: mongoose.Schema.Types.ObjectId, ref: 'HealthRecord' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Vaccination', vaccinationSchema);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AppointmentDashboard from './VetConnect/components/AppointmentDashboard';
+import AppointmentDashboard from './components/AppointmentDashboard';
 import { useNavigate } from 'react-router-dom';
 
 const AppointmentsPage = () => {

@@ -28,7 +28,9 @@ const appointmentSchema = new mongoose.Schema({
   isEmergency: { type: Boolean, default: false },
   videoConsultation: { type: Boolean, default: false },
   homeVisit: { type: Boolean, default: false },
-  notes: { type: String }
+  notes: { type: String },
+  hasVisitDetails: { type: Boolean, default: false },
+  healthRecordId: { type: mongoose.Schema.Types.ObjectId, ref: 'HealthRecord' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Appointment', appointmentSchema);

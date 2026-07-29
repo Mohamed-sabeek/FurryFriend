@@ -7,7 +7,8 @@ const {
   cancelAppointment,
   confirmAIBooking,
   getVets,
-  getClinics
+  getClinics,
+  addVisitDetails
 } = require('../controllers/vetController');
 const { protect } = require('../middleware/auth');
 
@@ -27,6 +28,7 @@ router
   .delete(deleteAppointment);
 
 router.patch('/appointments/:id/cancel', cancelAppointment);
+router.post('/appointments/:id/visit-details', addVisitDetails);
 router.post('/appointments/confirm-ai', confirmAIBooking);
 
 router.get('/vets', getVets);

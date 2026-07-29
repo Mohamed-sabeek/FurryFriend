@@ -7,7 +7,7 @@ import DashboardLayout from './pages/Dashboard/DashboardLayout';
 import MyPets from './pages/Dashboard/MyPets/MyPets';
 import ViewPet from './pages/Dashboard/MyPets/ViewPet';
 import VetConnectPage from './pages/Dashboard/VetConnect/VetConnectPage';
-import AppointmentsPage from './pages/Dashboard/AppointmentsPage';
+import AppointmentsPage from './pages/Dashboard/Appointments/AppointmentsPage';
 import HealthRecordsPage from './pages/Dashboard/HealthRecords/HealthRecordsPage';
 import NutritionPlansPage from './pages/Dashboard/NutritionPlans/NutritionPlansPage';
 import MarketplacePage from './pages/Dashboard/Marketplace/MarketplacePage';

@@ -281,3 +281,121 @@ exports.getClinics = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Submit Post-Appointment Visit Details
+// @route   POST /api/vet/appointments/:id/visit-details
+// @access  Private
+exports.addVisitDetails = async (req, res, next) => {
+  try {
+    const appointmentId = req.params.id;
+    const { 
+      doctorName, 
+      diagnosis, 
+      symptoms, 
+      treatment, 
+      medicalNotes, 
+      weight, 
+      height,
+      newAllergies, 
+      newChronicDiseases, 
+      medicines, 
+      vaccinations, 
+      documents 
+    } = req.body;
+
+    // 1. Validate Appointment
+    const appointment = await Appointment.findById(appointmentId);
+    if (!appointment) return res.status(404).json({ success: false, error: 'Appointment not found' });
+    if (appointment.user.toString() !== req.user._id.toString()) {
+      return res.status(401).json({ success: false, error: 'Not authorized' });
+    }
+    if (appointment.hasVisitDetails) {
+      return res.status(400).json({ success: false, error: 'Visit details have already been added for this appointment.' });
+    }
+
+    const petId = appointment.pet;
+    const userId = req.user._id;
+
+    // 2. Create Health Record
+    const HealthRecord = require('../models/HealthRecord');
+    const healthRecord = await HealthRecord.create({
+      user: userId,
+      pet: petId,
+      visitType: appointment.type,
+      hospital: appointment.hospitalName || 'Clinic',
+      doctor: doctorName,
+      visitDate: appointment.date,
+      symptoms: symptoms ? symptoms.split(',').map(s => s.trim()) : [],
+      diagnosis,
+      treatment,
+      notes: medicalNotes,
+      reportFiles: documents || [],
+      appointmentId: appointment._id
+    });
+
+    // 3. Create Medications
+    if (medicines && medicines.length > 0) {
+      const Medication = require('../models/Medication');
+      const medDocs = medicines.map(m => ({
+        user: userId,
+        pet: petId,
+        medicineName: m.name,
+        dosage: m.dosage,
+        frequency: m.frequency,
+        startDate: appointment.date,
+        purpose: m.purpose || diagnosis,
+        appointmentId: appointment._id,
+        healthRecordId: healthRecord._id
+      }));
+      await Medication.insertMany(medDocs);
+    }
+
+    // 4. Create Vaccinations
+    if (vaccinations && vaccinations.length > 0) {
+      const Vaccination = require('../models/Vaccination');
+      const vaxDocs = vaccinations.map(v => ({
+        user: userId,
+        pet: petId,
+        vaccineName: v.name,
+        vaccinatedDate: v.date || appointment.date,
+        nextDueDate: v.nextDueDate,
+        hospital: appointment.hospitalName,
+        doctor: doctorName,
+        appointmentId: appointment._id,
+        healthRecordId: healthRecord._id
+      }));
+      await Vaccination.insertMany(vaxDocs);
+    }
+
+    // 5. Update Pet Profile
+    const Pet = require('../models/Pet');
+    const pet = await Pet.findById(petId);
+    if (pet) {
+      if (weight) pet.weight = Number(weight);
+      
+      if (newAllergies && newAllergies.length > 0) {
+        pet.allergies = [...new Set([...pet.allergies, ...newAllergies])];
+      }
+      
+      if (newChronicDiseases && newChronicDiseases.length > 0) {
+        pet.currentDiseases = [...new Set([...pet.currentDiseases, ...newChronicDiseases])];
+      }
+      
+      pet.medicalNotes = pet.medicalNotes 
+        ? `${pet.medicalNotes}\n[${new Date(appointment.date).toLocaleDateString()}] ${medicalNotes}` 
+        : medicalNotes;
+        
+      await pet.save(); // This bumps pet.updatedAt, automatically invalidating AI Cache
+    }
+
+    // 6. Update Appointment
+    appointment.status = 'Completed';
+    appointment.hasVisitDetails = true;
+    appointment.healthRecordId = healthRecord._id;
+    await appointment.save();
+
+    res.status(200).json({ success: true, data: healthRecord });
+  } catch (error) {
+    next(error);
+  }
+};

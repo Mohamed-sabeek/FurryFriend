@@ -12,7 +12,8 @@ const healthRecordSchema = new mongoose.Schema({
   treatment: { type: String },
   notes: { type: String },
   prescriptionFiles: [{ type: String }], // Cloudinary URLs
-  reportFiles: [{ type: String }] // Cloudinary URLs
+  reportFiles: [{ type: String }], // Cloudinary URLs
+  appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('HealthRecord', healthRecordSchema);

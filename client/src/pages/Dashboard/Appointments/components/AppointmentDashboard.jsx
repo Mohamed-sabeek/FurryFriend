@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Calendar, Clock, MapPin, Phone, AlertTriangle, CheckCircle2,
   XCircle, RefreshCw, ChevronRight, Navigation2, Video,
-  Home, Star, PawPrint, Bell, X, Stethoscope
+  Home, Star, PawPrint, Bell, X, Stethoscope, Plus
 } from 'lucide-react';
 import api from '../../../../utils/axios';
 import toast from 'react-hot-toast';
+import MedicalVisitModal from './MedicalVisitModal';
 
 // ─── Species emoji map ────────────────────────────────────────────────────────
 const SPECIES_EMOJI = {
@@ -57,7 +58,7 @@ const StatCard = ({ label, count, icon: Icon, color }) => (
 );
 
 // ─── Appointment Card ─────────────────────────────────────────────────────────
-const AppointmentCard = ({ appointment, onCancel, onRefresh }) => {
+const AppointmentCard = ({ appointment, onCancel, onRefresh, onAddVisit }) => {
   const pet = appointment.pet || {};
   const petName = pet.petName || appointment.petName || 'Your pet';
   const species = pet.species || '';
@@ -83,13 +84,21 @@ const AppointmentCard = ({ appointment, onCancel, onRefresh }) => {
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${cfg.border}`}
+      className={`bg-white rounded-2xl border shadow-sm overflow-hidden ${cfg.border} relative`}
     >
       {/* Reminder strip */}
-      {within24h && (
+      {within24h && appointment.status !== 'Completed' && appointment.status !== 'Cancelled' && (
         <div className="bg-amber-50 border-b border-amber-100 px-4 py-2 flex items-center gap-2">
           <Bell size={14} className="text-amber-500 animate-pulse" />
           <span className="text-xs font-semibold text-amber-700">Reminder — appointment is within 24 hours!</span>
+        </div>
+      )}
+      
+      {/* Missing Visit Details Warning Strip */}
+      {appointment.status === 'Completed' && !appointment.hasVisitDetails && (
+        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 flex items-center gap-2">
+          <AlertTriangle size={14} className="text-primary animate-pulse" />
+          <span className="text-xs font-semibold text-primary">Please add visit details to update health records.</span>
         </div>
       )}
 
@@ -205,10 +214,22 @@ const AppointmentCard = ({ appointment, onCancel, onRefresh }) => {
               </button>
             </>
           )}
-          {appointment.status === 'Completed' && (
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 rounded-lg text-xs font-medium hover:bg-green-100 transition-colors">
-              <Star size={12} />
-              Leave Review
+          {appointment.status === 'Completed' && !appointment.hasVisitDetails && (
+            <button 
+              onClick={() => onAddVisit(appointment)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-lg text-xs font-bold hover:bg-primary/20 transition-colors"
+            >
+              <Plus size={12} />
+              Add Visit Details
+            </button>
+          )}
+          {appointment.status === 'Completed' && appointment.hasVisitDetails && (
+            <button 
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-xs font-bold cursor-not-allowed"
+              title="Visit details already added"
+            >
+              <CheckCircle2 size={12} />
+              Visit Details Added
             </button>
           )}
         </div>
@@ -222,6 +243,7 @@ const AppointmentDashboard = ({ refreshTrigger, onFindVet }) => {
   const [data, setData] = useState({ stats: {}, upcoming: [], completed: [], cancelled: [] });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [selectedVisitAppt, setSelectedVisitAppt] = useState(null);
 
   const fetchAppointments = useCallback(async () => {
     try {
@@ -339,12 +361,25 @@ const AppointmentDashboard = ({ refreshTrigger, onFindVet }) => {
                     key={appt._id}
                     appointment={appt}
                     onRefresh={fetchAppointments}
+                    onAddVisit={setSelectedVisitAppt}
                   />
                 ))}
               </motion.div>
             )}
           </AnimatePresence>
         </>
+      )}
+
+      {selectedVisitAppt && (
+        <MedicalVisitModal
+          isOpen={true}
+          appointment={selectedVisitAppt}
+          onClose={() => setSelectedVisitAppt(null)}
+          onSaveSuccess={() => {
+            setSelectedVisitAppt(null);
+            fetchAppointments();
+          }}
+        />
       )}
     </div>
   );
