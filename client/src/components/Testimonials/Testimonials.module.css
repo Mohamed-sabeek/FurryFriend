@@ -1,0 +1,227 @@
+.testimonialsSection {
+  background: #fafafa;
+  position: relative;
+  overflow: hidden;
+  padding: 120px 0 160px;
+  text-align: center;
+}
+
+/* Background Decor */
+.bgDecor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(255, 209, 102, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(255, 107, 107, 0.05) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Header */
+.header {
+  margin-bottom: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 24px;
+  background: linear-gradient(135deg, rgba(255, 209, 102, 0.2), rgba(255, 142, 83, 0.2));
+  color: #c98200;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 24px;
+  border: 1px solid rgba(255, 209, 102, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  box-shadow: 0 4px 15px rgba(255, 209, 102, 0.15);
+}
+
+.title {
+  font-size: 3.5rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  color: var(--text-heading);
+  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  max-width: 650px;
+  margin: 0 auto;
+  font-size: 1.15rem;
+  color: var(--text-body);
+  line-height: 1.6;
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Card */
+.card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.8) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 40px 32px;
+  border-radius: 30px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+  text-align: left;
+  position: relative;
+  border: 1px solid rgba(255,255,255,1);
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+/* Quote Watermark */
+.quoteMark {
+  position: absolute;
+  top: -20px;
+  right: -10px;
+  color: rgba(255, 107, 107, 0.05);
+  transform: rotate(10deg);
+  transition: transform 0.4s ease, color 0.4s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.card:hover .quoteMark {
+  transform: rotate(0deg) scale(1.1);
+  color: rgba(255, 107, 107, 0.1);
+}
+
+/* Stars */
+.stars {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.starIcon {
+  color: #FBBF24; /* Fallback for fill */
+  fill: url(#gold-gradient) #FBBF24;
+}
+
+.card:hover .starIcon {
+  animation: starPop 0.5s ease;
+}
+
+@keyframes starPop {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* Text */
+.text {
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--text-heading);
+  margin-bottom: 40px;
+  line-height: 1.7;
+  position: relative;
+  z-index: 1;
+  flex-grow: 1;
+}
+
+/* Author */
+.author {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(0,0,0,0.05);
+  padding-top: 24px;
+}
+
+.avatarWrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.avatarGlow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover .avatarGlow {
+  opacity: 1;
+}
+
+.avatarWrap img {
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
+.activeDot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 14px;
+  height: 14px;
+  background: #10B981;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+.name {
+  font-weight: 700;
+  color: var(--text-heading);
+  font-size: 1.05rem;
+  margin-bottom: 4px;
+}
+
+.role {
+  font-size: 0.85rem;
+  color: var(--text-body);
+  font-weight: 500;
+}

@@ -1,0 +1,371 @@
+.agentsSection {
+  background: var(--bg-color);
+  position: relative;
+  overflow: hidden;
+  padding: 120px 0;
+}
+
+/* Subtle Background Elements */
+.bgBlob {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: rgba(255, 107, 107, 0.05);
+  filter: blur(80px);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.gridPattern {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0,0,0,0.02) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  font-size: 3rem;
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-heading);
+  margin-bottom: 20px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.divider {
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(135deg, var(--primary), #ff8e53);
+  margin: 0 auto 24px;
+  border-radius: var(--radius-full);
+}
+
+.subtitle {
+  max-width: 600px;
+  margin: 0 auto;
+  font-size: 1.125rem;
+  color: var(--text-body);
+}
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Card General */
+.card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-radius: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
+  padding: 1px; 
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  transform: translateZ(0); /* GPU acceleration */
+}
+
+.cardGlow {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 0;
+}
+
+.cardContent {
+  position: relative;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 23px;
+  padding: 40px 32px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  transition: background 0.35s ease;
+}
+
+.card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+.card:hover .cardGlow {
+  opacity: 1;
+}
+
+.card:hover .cardContent {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Card Header */
+.cardHeaderTop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.iconWrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* AI Specialist Badge */
+.agentBadge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--secondary);
+  background: rgba(46, 196, 182, 0.1);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card:hover .agentBadge {
+  box-shadow: 0 0 10px rgba(46, 196, 182, 0.4);
+  background: rgba(46, 196, 182, 0.15);
+}
+.card:hover .agentBadge::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer {
+  100% { left: 200%; }
+}
+
+.cardTitle {
+  font-size: 1.5rem;
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-heading);
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.cardDesc {
+  font-size: 0.95rem;
+  color: var(--text-body);
+  margin-bottom: 32px;
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+/* Capabilities */
+.capabilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.pill {
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  background: var(--bg-color);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: var(--radius-full);
+  color: var(--text-heading);
+  font-weight: 500;
+  transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  transform: translateZ(0); /* GPU */
+}
+
+.card:hover .pill {
+  transform: translateY(-2px);
+  background: white;
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
+  border-color: rgba(255, 107, 107, 0.2);
+}
+
+/* Footer */
+.cardFooter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-body);
+  transition: color 0.3s ease;
+}
+
+.sparkleIconFooter {
+  color: var(--text-body);
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+.footerText {
+  transition: color 0.3s ease;
+}
+
+.card:hover .sparkleIconFooter {
+  color: var(--accent);
+  transform: rotate(15deg) scale(1.1);
+  filter: drop-shadow(0 0 4px rgba(255, 209, 102, 0.6));
+}
+.card:hover .footerText {
+  color: var(--text-heading);
+}
+
+/* ==========================================================================
+   SPECIFIC ICON MICRO-ANIMATIONS 
+   ========================================================================== */
+
+/* 1. VetConnect AI (Stethoscope) */
+.icon1 { transition: transform 0.3s ease; }
+.card:hover .icon1 { animation: swingSteth 2s infinite ease-in-out; transform-origin: top center; }
+@keyframes swingSteth {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(10deg); }
+  75% { transform: rotate(-10deg); }
+}
+.heartbeatRing {
+  position: absolute;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 2px solid white;
+  opacity: 0;
+  pointer-events: none;
+}
+.card:hover .heartbeatRing {
+  animation: pulseRing 1s infinite ease-out;
+}
+@keyframes pulseRing {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* 2. NutriPaws AI (Bone) */
+.icon2 { transition: transform 0.3s ease; }
+.card:hover .icon2 {
+  animation: rotateBone 4s infinite linear, floatBone 2s infinite ease-in-out;
+}
+@keyframes rotateBone {
+  100% { transform: rotate(360deg); }
+}
+@keyframes floatBone {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.tinySparkleBone {
+  position: absolute; top: 10px; right: 10px; opacity: 0;
+}
+.card:hover .tinySparkleBone {
+  animation: sparkleTwinkle 1.5s infinite;
+}
+@keyframes sparkleTwinkle {
+  0%, 100% { opacity: 0; transform: scale(0.5); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+/* 3. PetHealth AI (HeartPulse) */
+.icon3 { transition: transform 0.3s ease; }
+.card:hover .icon3 { animation: heartBeat 1s infinite ease-in-out; }
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+.healthGlow {
+  position: absolute;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  filter: blur(10px);
+  opacity: 0;
+}
+.card:hover .healthGlow { animation: heartGlow 1s infinite ease-in-out; }
+@keyframes heartGlow {
+  0%, 100% { opacity: 0; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* 4. GroomEase AI (Scissors) */
+.icon4 { transition: transform 0.3s ease; }
+.card:hover .icon4 { animation: cutScissor 0.5s infinite ease-in-out; transform-origin: center right; }
+@keyframes cutScissor {
+  0%, 100% { transform: rotate(0deg) scaleY(1); }
+  50% { transform: rotate(-5deg) scaleY(0.9); } /* Simulating slight closing */
+}
+.tinySparkleScissor {
+  position: absolute; bottom: 10px; left: 10px; opacity: 0;
+}
+.card:hover .tinySparkleScissor { animation: sparkleTwinkle 1.2s infinite 0.2s; }
+
+/* 5. PetCommerce AI (Shopping Bag) */
+.icon5 { transition: transform 0.3s ease; transform-origin: top center; }
+.card:hover .icon5 { animation: swingBag 2s infinite ease-in-out; }
+@keyframes swingBag {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(12deg) translateY(-2px); }
+  75% { transform: rotate(-12deg) translateY(-2px); }
+}
+
+/* 6. TravelPaws AI (Airplane) */
+.icon6 { transition: transform 0.3s ease; }
+.card:hover .icon6 { animation: flyPlane 2s infinite ease-in-out; }
+@keyframes flyPlane {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(6px, -6px) rotate(10deg); }
+}
+.motionTrail {
+  position: absolute;
+  width: 20px; height: 2px;
+  background: linear-gradient(90deg, transparent, white);
+  bottom: 22px; left: 10px;
+  opacity: 0;
+  transform: rotate(-10deg);
+}
+.card:hover .motionTrail { animation: trailFade 2s infinite ease-in-out; }
+@keyframes trailFade {
+  0%, 100% { opacity: 0; transform: translateX(-10px) scaleX(0); }
+  50% { opacity: 0.6; transform: translateX(0) scaleX(1); }
+}

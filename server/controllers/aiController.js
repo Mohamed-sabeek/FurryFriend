@@ -1,0 +1,177 @@
+const vetAgent = require('../services/AI/vetAgent');
+const { handleChatRequest } = require('../services/aiOrchestrator');
+const {
+  createConversation,
+  listConversations,
+  getConversationById,
+  deleteConversation,
+  renameConversation
+} = require('../services/AI/conversationManager');
+const Conversation = require('../models/Conversation');
+
+// ─── POST /api/ai/chat ────────────────────────────────────────────────────────
+const chat = async (req, res) => {
+  return handleChatRequest(req, res);
+};
+
+
+// ─── POST /api/ai/conversations ── Create new conversation ───────────────────
+const newConversation = async (req, res) => {
+  try {
+    const conv = await createConversation(req.user.id, 'vetconnect');
+    res.status(201).json({ success: true, data: { id: conv._id, title: conv.title } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// ─── GET /api/ai/conversations ── List all conversations ─────────────────────
+const getConversations = async (req, res) => {
+  try {
+    const list = await listConversations(req.user.id, 'vetconnect');
+    res.status(200).json({ success: true, data: list });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// ─── GET /api/ai/conversations/:id ── Load a specific conversation ────────────
+const getConversation = async (req, res) => {
+  try {
+    const conv = await getConversationById(req.params.id, req.user.id);
+    // Return raw messages so the frontend can map tools to UI components (e.g., clinic cards, booking cards)
+    const rawMessages = conv.messages;
+    res.status(200).json({
+      success: true,
+      data: {
+        id: conv._id,
+        title: conv.title,
+        messages: rawMessages,
+        updatedAt: conv.updatedAt
+      }
+    });
+  } catch (error) {
+    res.status(404).json({ success: false, error: error.message });
+  }
+};
+
+// ─── DELETE /api/ai/conversations/:id ────────────────────────────────────────
+const removeConversation = async (req, res) => {
+  try {
+    await deleteConversation(req.params.id, req.user.id);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// ─── PATCH /api/ai/conversations/:id ── Rename ────────────────────────────────
+const updateConversation = async (req, res) => {
+  try {
+    const { title } = req.body;
+    await renameConversation(req.params.id, req.user.id, title);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// ─── Legacy: GET /api/ai/history ─────────────────────────────────────────────
+const getHistory = async (req, res) => {
+  try {
+    const conversation = await Conversation.findOne({ user: req.user.id, agent: 'vet' })
+      .sort({ updatedAt: -1 });
+    res.status(200).json({
+      success: true,
+      data: conversation ? conversation.messages : []
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to fetch conversation history' });
+  }
+};
+
+// ─── Legacy: DELETE /api/ai/history ──────────────────────────────────────────
+const clearHistory = async (req, res) => {
+  try {
+    await Conversation.deleteMany({ user: req.user.id });
+    res.status(200).json({ success: true, data: [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to clear conversation history' });
+  }
+};
+
+const HealthRecord = require('../models/HealthRecord');
+const Vaccination = require('../models/Vaccination');
+const Medication = require('../models/Medication');
+const Appointment = require('../models/Appointment');
+const Pet = require('../models/Pet');
+const { getGroqChatCompletion } = require('../services/AI/groqClient');
+
+// ─── GET /api/ai/health-summary/:petId ───────────────────────────────────────
+const generateHealthSummary = async (req, res) => {
+  try {
+    const { petId } = req.params;
+    
+    // Fetch all related data
+    const [pet, records, vaccinations, medications, appointments] = await Promise.all([
+      Pet.findOne({ _id: petId, owner: req.user.id }),
+      HealthRecord.find({ pet: petId }).sort({ visitDate: -1 }),
+      Vaccination.find({ pet: petId }).sort({ vaccinatedDate: -1 }),
+      Medication.find({ pet: petId }).sort({ startDate: -1 }),
+      Appointment.find({ pet: petId }).sort({ date: -1 })
+    ]);
+
+    if (!pet) return res.status(404).json({ success: false, error: 'Pet not found' });
+
+    const systemPrompt = `You are a veterinary AI assistant. Your task is to analyze the provided pet health data and generate a structured JSON health summary.
+You MUST respond ONLY with a valid JSON object. Do not include markdown formatting or explanation text.
+The JSON must follow this exact structure:
+{
+  "healthScore": 85, // Integer 0-100 based on overall health and adherence to vaccinations/checkups
+  "insights": [
+    { "type": "success", "text": "Vaccinations are mostly up to date" },
+    { "type": "warning", "text": "Rabies vaccine due in 12 days" }
+  ],
+  "suggestedNextStep": "Schedule an annual wellness checkup."
+}
+
+Analyze the following data to generate the response:
+Pet Profile: ${JSON.stringify(pet)}
+Medical History: ${JSON.stringify(records)}
+Vaccinations: ${JSON.stringify(vaccinations)}
+Medications: ${JSON.stringify(medications)}
+Upcoming Appointments: ${JSON.stringify(appointments)}
+`;
+
+    const chatResponse = await getGroqChatCompletion([{ role: 'system', content: systemPrompt }]);
+    
+    let aiResponse;
+    try {
+      aiResponse = JSON.parse(chatResponse);
+    } catch (e) {
+      // Fallback if the LLM hallucinated markdown
+      const jsonMatch = chatResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        aiResponse = JSON.parse(jsonMatch[0]);
+      } else {
+        throw new Error('Invalid JSON from AI');
+      }
+    }
+
+    res.status(200).json({ success: true, data: aiResponse });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+module.exports = {
+  chat,
+  newConversation,
+  getConversations,
+  getConversation,
+  removeConversation,
+  updateConversation,
+  getHistory,
+  clearHistory,
+  generateHealthSummary
+};

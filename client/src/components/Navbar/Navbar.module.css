@@ -1,0 +1,124 @@
+.navbar {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 1000;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 100px;
+}
+
+.navContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 90px;
+  padding: 0 24px;
+}
+
+.navLogo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--text-heading);
+}
+
+.logoImage {
+  height: 50px;
+  width: auto;
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .logoImage {
+    height: 80px;
+  }
+}
+
+.navLinks {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .navLinks {
+    display: flex;
+    gap: 32px;
+  }
+}
+
+.navLink {
+  position: relative;
+  color: var(--text-body);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  transition: color 0.2s ease;
+  z-index: 1;
+}
+
+.navLink:hover {
+  color: var(--primary);
+}
+
+.navLink.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.activePill {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: var(--radius-full);
+  z-index: 1;
+}
+
+.navActions {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .navActions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+}
+
+.btnGhost {
+  color: var(--text-heading);
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  transition: all 0.2s;
+}
+
+.btnGhost:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, var(--primary), #ff8e53);
+  color: white;
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btnPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}

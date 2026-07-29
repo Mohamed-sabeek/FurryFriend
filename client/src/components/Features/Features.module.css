@@ -1,0 +1,209 @@
+.featuresSection {
+  background: var(--bg-color);
+  position: relative;
+  overflow: hidden;
+  padding: 120px 0;
+}
+
+/* Background Decor */
+.bgDecor {
+  position: absolute;
+  top: 50%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(46,196,182,0.04) 0%, transparent 70%);
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 60px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 1fr 1.1fr;
+    gap: 80px;
+  }
+}
+
+/* Left Image Section */
+.left {
+  position: relative;
+  perspective: 1000px;
+}
+
+.imgWrap {
+  position: relative;
+  border-radius: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Strong Glowing Aura behind phone */
+.imgGlow {
+  position: absolute;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(255,107,107,0.3) 0%, rgba(46,196,182,0.1) 50%, transparent 70%);
+  filter: blur(60px);
+  z-index: 0;
+  animation: pulseGlow 6s infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.1); opacity: 1; }
+}
+
+.img {
+  position: relative;
+  width: 100%;
+  max-width: 700px;
+  height: auto;
+  z-index: 1;
+  border-radius: 40px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.12), inset 0 0 0 1px rgba(255,255,255,0.8);
+  /* The original image is a mockup, so we add a premium shadow */
+}
+
+/* Decorative Floating Elements */
+.floatElement {
+  position: absolute;
+  background: white;
+  padding: 12px;
+  border-radius: 50%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  z-index: 2;
+  border: 1px solid rgba(0,0,0,0.02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.float1 {
+  top: 15%;
+  right: 5%;
+}
+
+.float2 {
+  bottom: 20%;
+  left: 0%;
+}
+
+
+/* Right Text Section */
+.right {
+  max-width: 600px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 142, 83, 0.1));
+  color: var(--primary);
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid rgba(255, 107, 107, 0.2);
+}
+
+.title {
+  font-size: 3rem;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  color: var(--text-heading);
+  margin-bottom: 20px;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--text-body);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+/* Feature Grid */
+.list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 640px) {
+  .list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.item {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+  border: 1px solid rgba(0,0,0,0.03);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: default;
+}
+
+.item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.05);
+}
+
+.iconWrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+
+.item:hover .iconWrap {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.featIcon {
+  transition: transform 0.3s ease;
+}
+
+.itemContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.itemTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--text-heading);
+  font-family: 'Poppins', sans-serif;
+}
+
+.itemDesc {
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.4;
+}
