@@ -30,7 +30,7 @@ const navItems = [
   { name: 'NutriPaws AI', path: '/dashboard/nutrition', icon: Apple },
   { name: 'PetCommerce AI', path: '/commerce', icon: ShoppingBag },
   { name: 'My Orders', path: '/commerce/orders', icon: Package },
-  { name: 'GroomEase AI', path: '/dashboard/grooming-ai', icon: Scissors },
+  { name: 'GroomSense AI', path: '/dashboard/groomsense', icon: Scissors },
   { name: 'TravelPaws AI', path: '/dashboard/boarding', icon: Home },
   { name: 'Profile', path: '/dashboard/profile', icon: User },
   { name: 'Settings', path: '/dashboard/settings', icon: Settings },

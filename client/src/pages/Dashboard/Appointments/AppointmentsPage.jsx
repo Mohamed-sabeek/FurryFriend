@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import AppointmentDashboard from './components/AppointmentDashboard';
 import GroomingAppointmentDashboard from './components/GroomingAppointmentDashboard';
+import BoardingAppointmentDashboard from './components/BoardingAppointmentDashboard';
 import { useNavigate } from 'react-router-dom';
 
 const AppointmentsPage = () => {
@@ -27,18 +28,33 @@ const AppointmentsPage = () => {
         >
           Grooming
         </button>
+        <button
+          onClick={() => setActiveMainTab('boarding')}
+          className={`px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${
+            activeMainTab === 'boarding' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Boarding
+        </button>
       </div>
 
       <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 lg:p-8 min-h-[60vh]">
-        {activeMainTab === 'veterinary' ? (
+        {activeMainTab === 'veterinary' && (
           <AppointmentDashboard 
             refreshTrigger={refreshTrigger}
             onFindVet={() => navigate('/dashboard/ai')}
           />
-        ) : (
+        )}
+        {activeMainTab === 'grooming' && (
           <GroomingAppointmentDashboard 
             refreshTrigger={refreshTrigger}
-            onFindGroomer={() => navigate('/dashboard/grooming-ai')}
+            onFindGroomer={() => navigate('/dashboard/groomsense')}
+          />
+        )}
+        {activeMainTab === 'boarding' && (
+          <BoardingAppointmentDashboard 
+            refreshTrigger={refreshTrigger}
+            onFindBoarding={() => navigate('/dashboard/boarding')}
           />
         )}
       </div>

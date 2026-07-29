@@ -32,6 +32,11 @@ import GroomingLayout from './pages/Grooming/GroomingLayout';
 import GroomingDashboard from './pages/Grooming/GroomingDashboard';
 import GroomingAppointments from './pages/Grooming/GroomingAppointments';
 import GroomingProfile from './pages/Grooming/GroomingProfile';
+import BoardingLayout from './pages/Boarding/BoardingLayout';
+import BoardingDashboard from './pages/Boarding/BoardingDashboard';
+import BoardingAppointments from './pages/Boarding/BoardingAppointments';
+import BoardingProfile from './pages/Boarding/BoardingProfile';
+import TravelPawsPage from './pages/Dashboard/TravelPaws/TravelPawsPage';
 import './index.css';
 
 function App() {
@@ -55,8 +60,9 @@ function App() {
             <Route path="nutrition" element={<NutritionPlansPage />} />
             <Route path="marketplace" element={<MarketplacePage />} />
             <Route path="grooming" element={<GroomingPage />} />
-            <Route path="grooming-ai" element={<GroomEaseAIPage />} />
-            <Route path="boarding" element={<BoardingPage />} />
+            <Route path="groomsense" element={<GroomEaseAIPage />} />
+            <Route path="boarding" element={<TravelPawsPage />} />
+            <Route path="store" element={<div className="p-8">Store Feature Coming Soon</div>} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
@@ -87,6 +93,15 @@ function App() {
             <Route path="dashboard" element={<GroomingDashboard />} />
             <Route path="appointments" element={<GroomingAppointments />} />
             <Route path="profile" element={<GroomingProfile />} />
+          </Route>
+        </Route>
+
+        {/* Boarding Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['boarding', 'admin']} />}>
+          <Route path="/boarding" element={<BoardingLayout />}>
+            <Route path="dashboard" element={<BoardingDashboard />} />
+            <Route path="appointments" element={<BoardingAppointments />} />
+            <Route path="profile" element={<BoardingProfile />} />
           </Route>
         </Route>
       </Routes>

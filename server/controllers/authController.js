@@ -33,7 +33,9 @@ const registerUser = async (req, res, next) => {
           fullName: user.fullName,
           email: user.email,
           role: user.role,
-          clinicId: user.clinicId
+          clinicId: user.clinicId,
+          groomingCenterId: user.groomingCenterId,
+          boardingCenterId: user.boardingCenterId
         },
         token
       });
@@ -71,7 +73,7 @@ const loginUser = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    const token = generateToken(user._id, user.role, user.clinicId, user.groomingCenterId);
+    const token = generateToken(user._id, user.role, user.clinicId, user.groomingCenterId, user.boardingCenterId);
     setTokenCookie(res, token);
 
     res.status(200).json({
@@ -83,7 +85,8 @@ const loginUser = async (req, res, next) => {
         role: user.role,
         profileImage: user.profileImage,
         clinicId: user.clinicId,
-        groomingCenterId: user.groomingCenterId
+        groomingCenterId: user.groomingCenterId,
+        boardingCenterId: user.boardingCenterId
       },
       token
     });
@@ -109,6 +112,7 @@ const getMe = async (req, res, next) => {
         profileImage: user.profileImage,
         clinicId: user.clinicId,
         groomingCenterId: user.groomingCenterId,
+        boardingCenterId: user.boardingCenterId,
         isVerified: user.isVerified
       }
     });

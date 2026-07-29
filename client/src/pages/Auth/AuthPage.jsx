@@ -80,6 +80,8 @@ const AuthPage = ({ mode = 'login' }) => {
           navigate('/clinic/dashboard');
         } else if (user?.role === 'grooming') {
           navigate('/grooming/dashboard');
+        } else if (user?.role === 'boarding') {
+          navigate('/boarding/dashboard');
         } else {
           navigate('/dashboard');
         }

@@ -12,6 +12,7 @@ const ProtectedRoute = ({ allowedRoles = [] }) => {
   if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
     if (user?.role === 'vet') return <Navigate to="/clinic/dashboard" replace />;
     if (user?.role === 'grooming') return <Navigate to="/grooming/dashboard" replace />;
+    if (user?.role === 'boarding') return <Navigate to="/boarding/dashboard" replace />;
     return <Navigate to="/dashboard" replace />;
   }
 

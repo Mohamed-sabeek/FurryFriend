@@ -203,6 +203,27 @@ const petSchema = new mongoose.Schema(
       services: [{ type: String }],
       appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'GroomingAppointment' }
     }],
+    latestBoarding: {
+      date: { type: Date },
+      center: { type: mongoose.Schema.Types.ObjectId, ref: 'BoardingCenter' },
+      centerName: { type: String },
+      checkIn: { type: Date },
+      checkOut: { type: Date },
+      duration: { type: Number }, // in days
+      staySummary: { type: String },
+      nextBoarding: { type: Date },
+      appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'BoardingAppointment' },
+      recordId: { type: mongoose.Schema.Types.ObjectId, ref: 'BoardingRecord' }
+    },
+    boardingHistory: [{
+      date: { type: Date },
+      centerName: { type: String },
+      checkIn: { type: Date },
+      checkOut: { type: Date },
+      duration: { type: Number },
+      appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'BoardingAppointment' },
+      recordId: { type: mongoose.Schema.Types.ObjectId, ref: 'BoardingRecord' }
+    }],
     aiPreferences: {
       healthMonitoring: { type: Boolean, default: true },
       dietRecommendations: { type: Boolean, default: true },

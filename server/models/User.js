@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema(
     ],
     role: {
       type: String,
-      enum: ['user', 'vet', 'admin', 'grooming'],
+      enum: ['user', 'vet', 'admin', 'grooming', 'boarding'],
       default: 'user'
     },
     isVerified: {
@@ -80,6 +80,10 @@ const userSchema = new mongoose.Schema(
     groomingCenterId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'GroomingCenter'
+    },
+    boardingCenterId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'BoardingCenter'
     }
   },
   {

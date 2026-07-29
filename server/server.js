@@ -17,6 +17,8 @@ const mapsRoutes = require('./routes/mapsRoutes');
 const healthRecordRoutes = require('./routes/healthRecordRoutes');
 const nutritionRoutes = require('./routes/nutriRoutes');
 const waterRoutes = require('./routes/waterRoutes');
+const boardingRoutes = require('./routes/boardingRoutes');
+const travelPawsRoutes = require('./routes/travelPawsRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
@@ -74,12 +76,14 @@ app.use('/api/nutrition', nutritionRoutes);
 app.use('/api/maps', mapsRoutes);
 app.use('/api/health-records', healthRecordRoutes);
 app.use('/api/water', waterRoutes);
+app.use('/api/grooming', groomingRoutes);
+app.use('/api/boarding', boardingRoutes);
+app.use('/api/travelpaws', travelPawsRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/clinic', clinicRoutes);
-app.use('/api/grooming', groomingRoutes);
 
 // 404 handler
 app.use(notFound);
