@@ -18,10 +18,7 @@ const GroomingLayout = () => {
   const navItems = [
     { name: 'Dashboard', path: '/grooming/dashboard', icon: Scissors },
     { name: 'Appointments', path: '/grooming/appointments', icon: Calendar },
-    { name: 'Clients', path: '/grooming/clients', icon: Users },
-    { name: 'Reports', path: '/grooming/reports', icon: FileText },
     { name: 'Profile', path: '/grooming/profile', icon: User },
-    { name: 'Settings', path: '/grooming/settings', icon: Settings },
   ];
 
   return (
