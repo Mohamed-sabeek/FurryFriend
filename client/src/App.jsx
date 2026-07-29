@@ -9,6 +9,12 @@ import ViewPet from './pages/Dashboard/MyPets/ViewPet';
 import VetConnectPage from './pages/Dashboard/VetConnect/VetConnectPage';
 import AppointmentsPage from './pages/Dashboard/AppointmentsPage';
 import HealthRecordsPage from './pages/Dashboard/HealthRecords/HealthRecordsPage';
+import NutritionPlansPage from './pages/Dashboard/NutritionPlans/NutritionPlansPage';
+import MarketplacePage from './pages/Dashboard/Marketplace/MarketplacePage';
+import GroomingPage from './pages/Dashboard/Grooming/GroomingPage';
+import BoardingPage from './pages/Dashboard/Boarding/BoardingPage';
+import ProfilePage from './pages/Dashboard/Profile/ProfilePage';
+import SettingsPage from './pages/Dashboard/Settings/SettingsPage';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 import './index.css';
 
@@ -30,6 +36,12 @@ function App() {
             <Route path="health-records" element={<HealthRecordsPage />} />
             <Route path="appointments" element={<AppointmentsPage />} />
             <Route path="ai" element={<VetConnectPage />} />
+            <Route path="nutrition" element={<NutritionPlansPage />} />
+            <Route path="marketplace" element={<MarketplacePage />} />
+            <Route path="grooming" element={<GroomingPage />} />
+            <Route path="boarding" element={<BoardingPage />} />
+            <Route path="profile" element={<ProfilePage />} />
+            <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>
       </Routes>

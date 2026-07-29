@@ -1,5 +1,6 @@
 const Pet = require('../models/Pet');
-// Other models like Appointment, Order, HealthReport would be required here
+const Appointment = require('../models/Appointment');
+// Other models like Order, HealthReport would be required here
 
 // @desc    Get dashboard summary
 // @route   GET /api/dashboard
@@ -11,7 +12,13 @@ const getDashboardData = async (req, res, next) => {
     // Fetch the user's pets
     const pets = await Pet.find({ owner: userId }).sort({ createdAt: -1 });
 
-    // In a real application, we would fetch actual appointments, orders, etc.
+    // Fetch appointment count
+    const upcomingAppointmentsCount = await Appointment.countDocuments({
+      user: userId,
+      status: { $in: ['Pending', 'Confirmed'] }
+    });
+
+    // In a real application, we would fetch actual orders, etc.
     // For now, we return placeholder counts and data structures to satisfy the UI
     const dashboardData = {
       user: {
@@ -22,7 +29,7 @@ const getDashboardData = async (req, res, next) => {
       },
       stats: {
         totalPets: pets.length,
-        upcomingAppointments: 0, // Placeholder
+        upcomingAppointments: upcomingAppointmentsCount,
         healthReports: 0, // Placeholder
         activeOrders: 0 // Placeholder
       },

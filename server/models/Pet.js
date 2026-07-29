@@ -185,9 +185,13 @@ const petSchema = new mongoose.Schema(
       vaccinationReminders: { type: Boolean, default: true },
       healthTrendAnalysis: { type: Boolean, default: true }
     },
-    aiSummary: {
-      type: String,
-      default: ''
+    aiSummaryCached: {
+      summary: {
+        type: mongoose.Schema.Types.Mixed,
+        default: null
+      },
+      generatedAt: { type: Date, default: null },
+      lastDataVersion: { type: Date, default: null }
     }
   },
   {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Plus, HeartPulse, Activity, Stethoscope } from 'lucide-react';
 import api from '../../../utils/axios';
 import toast from 'react-hot-toast';
@@ -17,6 +17,19 @@ const HealthRecordsPage = () => {
   const [timelineData, setTimelineData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = React.useRef(null);
+
+  // Click outside handler for dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Initial fetch
   useEffect(() => {
@@ -88,24 +101,52 @@ const HealthRecordsPage = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="relative">
-            <select
-              value={selectedPet?._id || ''}
-              onChange={(e) => setSelectedPet(pets.find(p => p._id === e.target.value))}
-              className="appearance-none bg-white border border-gray-200 text-text-heading font-semibold rounded-2xl px-5 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer"
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="bg-white border border-gray-200 text-text-heading font-bold rounded-2xl px-5 py-3 pr-10 focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-sm cursor-pointer flex items-center gap-2 w-40 justify-between"
             >
-              {pets.map(pet => (
-                <option key={pet._id} value={pet._id}>
-                  {pet.species === 'Dog' ? '🐶' : pet.species === 'Cat' ? '🐱' : '🐾'} {pet.petName}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
+              <div className="flex items-center gap-2">
+                {selectedPet ? (
+                  <>
+                    <span>{selectedPet.species === 'Dog' ? '🐶' : selectedPet.species === 'Cat' ? '🐱' : '🐾'}</span>
+                    <span>{selectedPet.petName}</span>
+                  </>
+                ) : 'Select Pet'}
+              </div>
+              <ChevronDown className={`text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} size={18} />
+            </button>
+
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute top-full left-0 mt-2 w-full bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden z-50 py-2"
+                >
+                  {pets.map(pet => (
+                    <button
+                      key={pet._id}
+                      onClick={() => {
+                        setSelectedPet(pet);
+                        setIsDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-5 py-2.5 hover:bg-red-50 text-gray-700 hover:text-primary font-bold flex items-center gap-2 transition-colors"
+                    >
+                      <span>{pet.species === 'Dog' ? '🐶' : pet.species === 'Cat' ? '🐱' : '🐾'}</span>
+                      <span>{pet.petName}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="btn-primary flex items-center gap-2 whitespace-nowrap shadow-md hover:shadow-lg transition-all"
+            className="bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-2xl flex items-center gap-2 whitespace-nowrap shadow-sm hover:shadow-md transition-all border border-transparent hover:border-primary-light"
           >
             <Plus size={18} /> Add Record
           </button>

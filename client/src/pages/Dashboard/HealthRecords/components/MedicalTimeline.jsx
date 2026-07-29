@@ -64,7 +64,7 @@ const MedicalTimeline = ({ pet, timelineData, loading }) => {
             </p>
           </div>
         ) : (
-          <div className="relative border-l-2 border-gray-100 ml-4 space-y-8 py-4">
+          <div className="relative border-l-2 border-red-100 ml-4 space-y-8 py-4">
             {timeline.map((item, idx) => (
               <motion.div 
                 key={`${item.type}-${idx}`}
@@ -74,15 +74,15 @@ const MedicalTimeline = ({ pet, timelineData, loading }) => {
                 className="relative pl-8"
               >
                 {/* Timeline Dot */}
-                <div className={`absolute -left-[17px] top-1 w-8 h-8 rounded-full border-2 border-white flex items-center justify-center shadow-sm ${getTimelineColor(item.type)}`}>
+                <div className={`absolute -left-[17px] top-1 w-8 h-8 rounded-full border-2 border-white flex items-center justify-center shadow-md ${getTimelineColor(item.type)}`}>
                   {getTimelineIcon(item.type)}
                 </div>
 
-                <div className="bg-gray-50 hover:bg-gray-100/50 transition-colors rounded-2xl p-5 border border-gray-100 group">
+                <div className="bg-white hover:bg-gradient-to-r hover:from-red-50/40 hover:to-white transition-all duration-300 rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md group">
                   <div className="flex flex-wrap justify-between items-start gap-4 mb-2">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs font-bold uppercase tracking-wider text-gray-500">
+                        <span className="text-xs font-bold uppercase tracking-wider text-gray-500 group-hover:text-primary transition-colors">
                           {item.type}
                         </span>
                         <span className="w-1 h-1 rounded-full bg-gray-300"></span>
@@ -100,17 +100,17 @@ const MedicalTimeline = ({ pet, timelineData, loading }) => {
 
                     {/* Status Badge */}
                     {item.type === 'appointment' && (
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        item.data.status === 'Confirmed' ? 'bg-green-100 text-green-700' : 
-                        item.data.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-200 text-gray-700'
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                        item.data.status === 'Confirmed' ? 'bg-green-50 text-green-700 border-green-200 shadow-sm' : 
+                        item.data.status === 'Pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-200 shadow-sm'
                       }`}>
                         {item.data.status}
                       </span>
                     )}
                     {item.type === 'vaccination' && (
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        item.data.status === 'Completed' ? 'bg-green-100 text-green-700' : 
-                        item.data.status === 'Upcoming' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                        item.data.status === 'Completed' ? 'bg-green-50 text-green-700 border-green-200 shadow-sm' : 
+                        item.data.status === 'Upcoming' ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm' : 'bg-red-50 text-red-700 border-red-200 shadow-sm'
                       }`}>
                         {item.data.status}
                       </span>
@@ -118,23 +118,30 @@ const MedicalTimeline = ({ pet, timelineData, loading }) => {
                   </div>
 
                   {/* Context Data */}
-                  <div className="text-sm text-gray-600 space-y-2">
+                  <div className="text-sm text-gray-600 space-y-2 mt-3">
                     {item.data.hospital && (
-                      <div className="flex items-center gap-1.5 text-gray-500">
-                        <MapPin size={14} /> {item.data.hospital} {item.data.doctor && `• ${item.data.doctor}`}
+                      <div className="flex items-center gap-1.5 text-gray-500 bg-gray-50 w-fit px-3 py-1.5 rounded-lg border border-gray-100">
+                        <MapPin size={14} className="text-primary/70" /> 
+                        <span className="font-medium">{item.data.hospital} {item.data.doctor && `• ${item.data.doctor}`}</span>
                       </div>
                     )}
                     
                     {item.type === 'record' && item.data.diagnosis && (
-                      <p><strong>Diagnosis:</strong> {item.data.diagnosis}</p>
+                      <p className="bg-blue-50/50 p-2.5 rounded-xl border border-blue-100/50">
+                        <strong className="text-blue-800">Diagnosis:</strong> <span className="text-blue-900/80">{item.data.diagnosis}</span>
+                      </p>
                     )}
                     
                     {item.type === 'medication' && (
-                      <p>{item.data.dosage} • {item.data.frequency}</p>
+                      <p className="bg-purple-50/50 p-2.5 rounded-xl border border-purple-100/50">
+                        <strong className="text-purple-800">Dosage:</strong> <span className="text-purple-900/80">{item.data.dosage} • {item.data.frequency}</span>
+                      </p>
                     )}
 
                     {item.type === 'appointment' && item.data.reason && (
-                      <p><strong>Reason:</strong> {item.data.reason}</p>
+                      <p className="bg-orange-50/50 p-2.5 rounded-xl border border-orange-100/50">
+                        <strong className="text-orange-800">Reason:</strong> <span className="text-orange-900/80">{item.data.reason}</span>
+                      </p>
                     )}
                   </div>
                 </div>
