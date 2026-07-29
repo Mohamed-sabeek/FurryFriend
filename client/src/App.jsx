@@ -28,6 +28,9 @@ import ClinicDashboard from './pages/Clinic/ClinicDashboard';
 import ClinicAppointments from './pages/Clinic/ClinicAppointments';
 import ClinicProfile from './pages/Clinic/ClinicProfile';
 import ConsultationForm from './pages/Clinic/ConsultationForm';
+import GroomingLayout from './pages/Grooming/GroomingLayout';
+import GroomingDashboard from './pages/Grooming/GroomingDashboard';
+import GroomingAppointments from './pages/Grooming/GroomingAppointments';
 import './index.css';
 
 function App() {
@@ -74,6 +77,18 @@ function App() {
             <Route path="appointments" element={<ClinicAppointments />} />
             <Route path="appointments/:id/consultation" element={<ConsultationForm />} />
             <Route path="profile" element={<ClinicProfile />} />
+          </Route>
+        </Route>
+
+        {/* Grooming Routes */}
+        <Route element={<ProtectedRoute allowedRoles={['grooming', 'admin']} />}>
+          <Route path="/grooming" element={<GroomingLayout />}>
+            <Route path="dashboard" element={<GroomingDashboard />} />
+            <Route path="appointments" element={<GroomingAppointments />} />
+            <Route path="clients" element={<div className="p-8">Clients Feature Coming Soon</div>} />
+            <Route path="reports" element={<div className="p-8">Reports Feature Coming Soon</div>} />
+            <Route path="profile" element={<div className="p-8">Profile Feature Coming Soon</div>} />
+            <Route path="settings" element={<div className="p-8">Settings Feature Coming Soon</div>} />
           </Route>
         </Route>
       </Routes>

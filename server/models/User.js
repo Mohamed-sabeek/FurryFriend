@@ -64,7 +64,7 @@ const userSchema = new mongoose.Schema(
     ],
     role: {
       type: String,
-      enum: ['user', 'vet', 'admin'],
+      enum: ['user', 'vet', 'admin', 'grooming'],
       default: 'user'
     },
     isVerified: {
@@ -76,6 +76,10 @@ const userSchema = new mongoose.Schema(
     clinicId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Clinic'
+    },
+    groomingCenterId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'GroomingCenter'
     }
   },
   {

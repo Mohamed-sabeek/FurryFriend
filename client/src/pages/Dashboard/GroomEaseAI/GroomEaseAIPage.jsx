@@ -120,6 +120,8 @@ const GroomEaseAIPage = () => {
         pet: selectedPet,
         center: bookingCenter._id,
         selectedServices: [plan?.recommendedStyle?.name || 'Full Grooming'],
+        recommendedStyle: plan?.recommendedStyle?.name || 'Full Grooming',
+        specialRequests: formData.get('specialRequests') || '',
         date,
         time
       });
@@ -358,6 +360,11 @@ const GroomEaseAIPage = () => {
                  <div>
                     <label className="block text-xs font-medium text-gray-500 mb-1">Time</label>
                     <input name="time" type="time" required className="w-full p-2 border border-gray-200 rounded-xl outline-none focus:border-primary text-sm" />
+                 </div>
+
+                 <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Special Requests (Optional)</label>
+                    <textarea name="specialRequests" rows="2" placeholder="e.g. Needs gentle handling, allergic to certain shampoos..." className="w-full p-2 border border-gray-200 rounded-xl outline-none focus:border-primary text-sm resize-none" />
                  </div>
 
                  <div className="flex justify-end gap-2 mt-6">

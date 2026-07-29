@@ -23,7 +23,7 @@ const registerUser = async (req, res, next) => {
     });
 
     if (user) {
-      const token = generateToken(user._id, user.role, user.clinicId);
+      const token = generateToken(user._id, user.role, user.clinicId, user.groomingCenterId);
       setTokenCookie(res, token);
       
       res.status(201).json({
@@ -71,7 +71,7 @@ const loginUser = async (req, res, next) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    const token = generateToken(user._id, user.role, user.clinicId);
+    const token = generateToken(user._id, user.role, user.clinicId, user.groomingCenterId);
     setTokenCookie(res, token);
 
     res.status(200).json({
@@ -82,7 +82,8 @@ const loginUser = async (req, res, next) => {
         email: user.email,
         role: user.role,
         profileImage: user.profileImage,
-        clinicId: user.clinicId
+        clinicId: user.clinicId,
+        groomingCenterId: user.groomingCenterId
       },
       token
     });
@@ -100,7 +101,16 @@ const getMe = async (req, res, next) => {
     
     res.status(200).json({
       success: true,
-      user
+      user: {
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        profileImage: user.profileImage,
+        clinicId: user.clinicId,
+        groomingCenterId: user.groomingCenterId,
+        isVerified: user.isVerified
+      }
     });
   } catch (error) {
     next(error);

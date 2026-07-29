@@ -73,15 +73,22 @@ const AuthPage = ({ mode = 'login' }) => {
       console.error(message);
     }
 
+    let timeout;
     if (isSuccess || isAuthenticated) {
-      setTimeout(() => {
+      timeout = setTimeout(() => {
         if (user?.role === 'vet') {
           navigate('/clinic/dashboard');
+        } else if (user?.role === 'grooming') {
+          navigate('/grooming/dashboard');
         } else {
           navigate('/dashboard');
         }
-      }, 1000);
+      }, 500);
     }
+    
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, [isError, isSuccess, isAuthenticated, message, navigate, user]);
 
   const passwordValue = watch('password', '');

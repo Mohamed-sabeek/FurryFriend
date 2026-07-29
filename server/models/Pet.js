@@ -187,6 +187,22 @@ const petSchema = new mongoose.Schema(
       nextFollowUp: { type: Date },
       appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Appointment' }
     },
+    latestGrooming: {
+      date: { type: Date },
+      center: { type: mongoose.Schema.Types.ObjectId, ref: 'GroomingCenter' },
+      centerName: { type: String },
+      services: [{ type: String }],
+      products: [{ type: String }],
+      notes: { type: String },
+      nextGroomingDate: { type: Date },
+      appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'GroomingAppointment' }
+    },
+    groomingHistory: [{
+      date: { type: Date },
+      centerName: { type: String },
+      services: [{ type: String }],
+      appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'GroomingAppointment' }
+    }],
     aiPreferences: {
       healthMonitoring: { type: Boolean, default: true },
       dietRecommendations: { type: Boolean, default: true },

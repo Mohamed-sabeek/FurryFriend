@@ -189,16 +189,19 @@ Output MUST be valid JSON conforming exactly to this structure:
 
 exports.bookAppointment = async (req, res) => {
   try {
-    const { pet, center, selectedServices, date, time } = req.body;
+    const { pet, center, selectedServices, recommendedStyle, specialRequests, date, time } = req.body;
     
     const appointment = new GroomingAppointment({
       user: req.user.id,
       pet,
       center,
       selectedServices,
+      recommendedStyle,
+      specialRequests,
       date,
       time,
-      status: 'Pending'
+      status: 'Pending',
+      timeline: [{ status: 'Pending', note: 'Appointment booked' }]
     });
     
     await appointment.save();
@@ -206,5 +209,182 @@ exports.bookAppointment = async (req, res) => {
   } catch (error) {
     console.error('Error booking grooming appointment:', error);
     res.status(500).json({ success: false, error: 'Failed to book appointment' });
+  }
+};
+
+exports.getCustomerGroomingAppointments = async (req, res) => {
+  try {
+    const appointments = await GroomingAppointment.find({ user: req.user.id })
+      .populate('pet', 'petName species profileImage')
+      .populate('center', 'name address city')
+      .sort({ date: 1, time: 1 });
+
+    const upcoming = appointments.filter(a => ['Pending', 'Accepted', 'In Progress'].includes(a.status));
+    const completed = appointments.filter(a => a.status === 'Completed');
+    const cancelled = appointments.filter(a => a.status === 'Cancelled');
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        upcoming: upcoming.length,
+        completed: completed.length,
+        cancelled: cancelled.length,
+        pending: upcoming.filter(a => a.status === 'Pending').length
+      },
+      data: {
+        upcoming,
+        completed,
+        cancelled
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching customer grooming appointments:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch appointments' });
+  }
+};
+
+// --- Grooming Center Dashboard APIs ---
+
+exports.getCenterDashboardStats = async (req, res) => {
+  try {
+    const centerId = req.user.groomingCenterId;
+    if (!centerId) return res.status(403).json({ success: false, message: 'Not a grooming center' });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const todayAppointments = await GroomingAppointment.countDocuments({
+      center: centerId,
+      date: { $gte: today, $lt: tomorrow }
+    });
+    const pendingAppointments = await GroomingAppointment.countDocuments({
+      center: centerId,
+      status: 'Pending'
+    });
+    const completedAppointments = await GroomingAppointment.countDocuments({
+      center: centerId,
+      status: 'Completed'
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        todayAppointments,
+        pendingAppointments,
+        completedAppointments
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching center stats:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+exports.getCenterAppointments = async (req, res) => {
+  try {
+    const centerId = req.user.groomingCenterId;
+    const { status, date } = req.query;
+    
+    let query = { center: centerId };
+    
+    if (status && status !== 'All') {
+      query.status = status;
+    }
+    
+    if (date) {
+      const qDate = new Date(date);
+      qDate.setHours(0, 0, 0, 0);
+      const nextDate = new Date(qDate);
+      nextDate.setDate(nextDate.getDate() + 1);
+      query.date = { $gte: qDate, $lt: nextDate };
+    }
+
+    const appointments = await GroomingAppointment.find(query)
+      .populate('pet', 'petName species breed profileImage ownerName')
+      .populate('user', 'fullName phone')
+      .sort({ date: 1, time: 1 });
+
+    res.status(200).json({ success: true, data: appointments });
+  } catch (error) {
+    console.error('Error fetching center appointments:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+exports.updateAppointmentStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const centerId = req.user.groomingCenterId;
+
+    const appointment = await GroomingAppointment.findOne({ _id: id, center: centerId });
+    if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found' });
+
+    appointment.status = status;
+    await appointment.save();
+
+    res.status(200).json({ success: true, data: appointment });
+  } catch (error) {
+    console.error('Error updating appointment status:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+exports.completeGrooming = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { servicesPerformed, productsUsed, coatCondition, skinCondition, behaviour, specialNotes, recommendedInterval, nextGroomingDate, homeCareTips } = req.body;
+    const centerId = req.user.groomingCenterId;
+
+    const appointment = await GroomingAppointment.findOne({ _id: id, center: centerId }).populate('center');
+    if (!appointment) return res.status(404).json({ success: false, message: 'Appointment not found' });
+
+    appointment.status = 'Completed';
+    appointment.report = {
+      servicesPerformed,
+      productsUsed,
+      coatCondition,
+      skinCondition,
+      behaviour,
+      specialNotes,
+      recommendedInterval,
+      nextGroomingDate,
+      homeCareTips
+    };
+    await appointment.save();
+
+    // Update Pet model
+    const Pet = require('../models/Pet');
+    const pet = await Pet.findById(appointment.pet);
+    if (pet) {
+      const groomingData = {
+        date: appointment.date,
+        center: appointment.center._id,
+        centerName: appointment.center.name,
+        services: servicesPerformed,
+        products: productsUsed,
+        notes: specialNotes,
+        nextGroomingDate,
+        appointmentId: appointment._id
+      };
+      
+      pet.latestGrooming = groomingData;
+      pet.groomingHistory.push(groomingData);
+      
+      // Expire GroomEase AI Cache so it recommends new plan
+      if (pet.aiSummaryCached && pet.aiSummaryCached.summary && pet.aiSummaryCached.summary.recommendedStyle) {
+         pet.aiSummaryCached.isOutdated = true; 
+         pet.aiSummaryCached.lastDataVersion = new Date();
+      }
+
+      await pet.save();
+    }
+
+    res.status(200).json({ success: true, data: appointment });
+  } catch (error) {
+    console.error('Error completing grooming:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
   }
 };

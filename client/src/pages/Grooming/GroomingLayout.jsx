@@ -2,10 +2,10 @@ import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../../redux/slices/authSlice';
-import { Stethoscope, Calendar, Users, FileText, Settings, LogOut, Bell, Search, User } from 'lucide-react';
+import { Scissors, Calendar, Users, FileText, Settings, LogOut, Bell, Search, User } from 'lucide-react';
 import logo from '../../assets/furryfriend.png';
 
-const ClinicLayout = () => {
+const GroomingLayout = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { user } = useSelector(state => state.auth);
@@ -16,9 +16,12 @@ const ClinicLayout = () => {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/clinic/dashboard', icon: Stethoscope },
-    { name: 'Appointments', path: '/clinic/appointments', icon: Calendar },
-    { name: 'Profile', path: '/clinic/profile', icon: User },
+    { name: 'Dashboard', path: '/grooming/dashboard', icon: Scissors },
+    { name: 'Appointments', path: '/grooming/appointments', icon: Calendar },
+    { name: 'Clients', path: '/grooming/clients', icon: Users },
+    { name: 'Reports', path: '/grooming/reports', icon: FileText },
+    { name: 'Profile', path: '/grooming/profile', icon: User },
+    { name: 'Settings', path: '/grooming/settings', icon: Settings },
   ];
 
   return (
@@ -30,7 +33,7 @@ const ClinicLayout = () => {
             <img src={logo} alt="FurryFriend Logo" className="w-10 h-10 object-contain drop-shadow-sm" />
             <span className="text-xl font-bold text-primary tracking-tight">FurryFriend</span>
           </div>
-          <div className="mt-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Clinic Portal</div>
+          <div className="mt-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Grooming Portal</div>
         </div>
 
         <div className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
@@ -75,7 +78,7 @@ const ClinicLayout = () => {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
               <input 
                 type="text" 
-                placeholder="Search appointments, patients..." 
+                placeholder="Search appointments, clients..." 
                 className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-xl text-sm font-medium focus:outline-none focus:bg-white focus:border-gray-200 transition-all"
               />
             </div>
@@ -98,4 +101,4 @@ const ClinicLayout = () => {
   );
 };
 
-export default ClinicLayout;
+export default GroomingLayout;
