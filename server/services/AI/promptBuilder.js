@@ -29,10 +29,7 @@ const buildVetAgentPrompt = (userDetails, location = {}, pets = [], appointments
     contextString += `- Time: ${bookingSession.time || 'Not collected'}\n`;
   }
 
-  // Generate dynamic pet options
-  let petOptions = pets.length > 0 
-    ? pets.map(p => p.petName).join('|') + '|Register New Pet'
-    : 'Register New Pet';
+  // petOptions string generation removed as UI is now state-driven
 
   const systemPrompt = `You are VetConnect AI, a veterinary appointment booking assistant. 
 Your ONLY responsibility is to help the user successfully book an appointment. 
@@ -56,22 +53,19 @@ CURRENT STATE: ${state}
 
 If State is ${BOOKING_STATES.SELECT_PET}:
 - Ask the user which pet the appointment is for.
-- Use [OPTIONS: ${petOptions}]
 - If the user provides the pet, you MUST call the "updateBookingState" tool with state="${BOOKING_STATES.COLLECT_REASON}" and petName.
+- CRITICAL: If the user says they just registered a new pet and want to see the options, DO NOT call updateBookingState yet. Just acknowledge it and ask them to choose from the provided options.
 
 If State is ${BOOKING_STATES.COLLECT_REASON}:
 - Ask the user the reason for the visit.
-- Use [OPTIONS: General Checkup|Vaccination|Illness|Injury]
 - If the user provides the reason, you MUST call the "updateBookingState" tool with state="${BOOKING_STATES.COLLECT_DATE}" and reason.
 
 If State is ${BOOKING_STATES.COLLECT_DATE}:
 - Ask the user for their preferred date.
-- Use [OPTIONS: Today|Tomorrow|Next Week]
 - If the user provides the date, you MUST call the "updateBookingState" tool with state="${BOOKING_STATES.COLLECT_TIME}" and date.
 
 If State is ${BOOKING_STATES.COLLECT_TIME}:
 - Ask the user for their preferred time.
-- Use [OPTIONS: Morning|Afternoon|Evening]
 - If the user provides the time, you MUST call the "updateBookingState" tool with state="${BOOKING_STATES.SHOW_CLINICS}" and time.
 
 If State is ${BOOKING_STATES.SHOW_CLINICS}:

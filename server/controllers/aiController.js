@@ -7,6 +7,7 @@ const {
   deleteConversation,
   renameConversation
 } = require('../services/AI/conversationManager');
+const mongoose = require('mongoose');
 const Conversation = require('../models/Conversation');
 
 // ─── POST /api/ai/chat ────────────────────────────────────────────────────────
@@ -41,13 +42,18 @@ const getConversation = async (req, res) => {
     const conv = await getConversationById(req.params.id, req.user.id);
     // Return raw messages so the frontend can map tools to UI components (e.g., clinic cards, booking cards)
     const rawMessages = conv.messages;
+    
+    const bookingSession = await mongoose.model('BookingSession').findOne({ conversationId: conv._id }).lean();
+    const bookingState = bookingSession ? bookingSession.state : null;
+
     res.status(200).json({
       success: true,
       data: {
         id: conv._id,
         title: conv.title,
         messages: rawMessages,
-        updatedAt: conv.updatedAt
+        updatedAt: conv.updatedAt,
+        bookingState
       }
     });
   } catch (error) {

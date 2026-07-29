@@ -142,12 +142,16 @@ const handleChatRequest = async (req, res) => {
     
     timings['AI_Processing'] = Date.now() - aiStartTime;
 
+    // Fetch latest booking session in case a tool updated it
+    const latestBookingSession = await fetchBookingSession(convIdToUse);
+    const bookingState = latestBookingSession ? latestBookingSession.state : null;
+
     // Send final response
     if (isStreaming) {
-      res.write(`data: ${JSON.stringify({ type: 'done', finalResult: result })}\n\n`);
+      res.write(`data: ${JSON.stringify({ type: 'done', finalResult: result, bookingState })}\n\n`);
       res.end();
     } else {
-      res.status(200).json({ success: true, data: result });
+      res.status(200).json({ success: true, data: result, bookingState });
     }
 
     timings['TotalRequestTime'] = Date.now() - startTime;

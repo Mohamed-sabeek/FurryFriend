@@ -102,7 +102,7 @@ const DEFAULT_PET_VALUES = {
   }
 };
 
-const AddPetModal = ({ isOpen, onClose, editData, initialSpecies, returnTo }) => {
+const AddPetModal = ({ isOpen, onClose, editData, initialSpecies, returnTo, onSaveSuccess }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [currentStep, setCurrentStep] = useState(1);
@@ -282,7 +282,9 @@ const AddPetModal = ({ isOpen, onClose, editData, initialSpecies, returnTo }) =>
       } else {
         await dispatch(addPet(formData)).unwrap();
       }
-      if (returnTo === 'vetconnect') {
+      if (onSaveSuccess) {
+        onSaveSuccess(data);
+      } else if (returnTo === 'vetconnect') {
         navigate(`/dashboard/vetconnect?petRegistered=${data.species}`);
       } else {
         resetFormAndClose();

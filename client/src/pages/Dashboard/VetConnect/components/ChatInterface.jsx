@@ -3,6 +3,7 @@ import { Bot, User, Send, Loader2, PlusCircle, ArrowDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ClinicCards from './ClinicCards';
 import AppointmentConfirmCard from './AppointmentConfirmCard';
+import InteractiveBookingUI from './InteractiveBookingUI';
 
 const LOADING_MESSAGES = [
   "🧠 Understanding your request...",
@@ -41,7 +42,7 @@ const LoadingIndicator = () => {
   );
 };
 
-const ChatInterface = ({ conversationId, messages, isLoading, onSendMessage, onRegisterPet, onBookingComplete }) => {
+const ChatInterface = ({ conversationId, messages, isLoading, onSendMessage, onRegisterPet, onBookingComplete, bookingState }) => {
   const [inputValue, setInputValue] = useState('');
   const chatContainerRef = useRef(null);
 
@@ -153,15 +154,7 @@ const ChatInterface = ({ conversationId, messages, isLoading, onSendMessage, onR
           if (!msg.text && !msg.type) return null;
 
           let displayText = msg.text || '';
-          let options = [];
           let actionElement = null;
-          
-          // Check for [OPTIONS: ...] syntax
-          const optionsMatch = displayText.match(/\[OPTIONS:\s*(.*?)\s*\]/i);
-          if (optionsMatch) {
-            options = optionsMatch[1].split('|').map(o => o.trim());
-            displayText = displayText.replace(optionsMatch[0], '').trim();
-          }
 
           // Check for [ACTION: REGISTER_PET|Species]
           const actionMatch = displayText.match(/\[ACTION:\s*REGISTER_PET\s*\|\s*([^\]]+)\s*\]/i);
@@ -246,23 +239,13 @@ const ChatInterface = ({ conversationId, messages, isLoading, onSendMessage, onR
                   </AnimatePresence>
                 )}
                 
-                {/* Quick Replies - Only show for the very last message in the conversation to make them one-time use */}
-                {options.length > 0 && isBot && idx === messages.length - 1 && !isLoading && (
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {options.map((opt, i) => (
-                      <button
-                        key={i}
-                        onClick={() => {
-                          if (!isLoading) {
-                            onSendMessage(opt);
-                          }
-                        }}
-                        className="px-4 py-2 bg-primary/10 text-primary hover:bg-primary hover:text-white border border-primary/20 rounded-full text-sm font-medium transition-all duration-200"
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                  </div>
+                {/* State-driven Interactive UI - Render only on the final bot message when not loading */}
+                {isBot && idx === messages.length - 1 && !isLoading && (
+                  <InteractiveBookingUI 
+                    bookingState={bookingState} 
+                    onSendMessage={onSendMessage} 
+                    onRegisterPet={onRegisterPet} 
+                  />
                 )}
                 
                 {actionElement}

@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { fetchPets } from '../../../redux/slices/petSlice';
 import api from '../../../utils/axios';
 import toast from 'react-hot-toast';
+import AddPetModal from '../../../components/pets/AddPetModal';
 
 const WELCOME_MSG = {
   sender: 'bot',
@@ -25,6 +26,11 @@ const VetConnectPage = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [bookingState, setBookingState] = useState(null);
+  
+  // Add Pet Modal State
+  const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
+  const [addPetSpecies, setAddPetSpecies] = useState('');
 
   // ─── Send message ────────────────────────────────────────────────────────────
   const handleSendMessage = useCallback(async (text, silent = false) => {
@@ -111,6 +117,10 @@ const VetConnectPage = () => {
                     return [...prev, { sender: 'bot', text: finalResult.content, id: tempMessageId, isStreaming: false }];
                   }
                 });
+                
+                if (data.bookingState) {
+                  setBookingState(data.bookingState);
+                }
                 
                 // Handle tools fired (maps, bookings)
                 if (finalResult.toolsFired?.length > 0) {
@@ -256,8 +266,13 @@ const VetConnectPage = () => {
     try {
       setIsLoading(true);
       const res = await api.get(`/ai/conversations/${id}`);
-      const { messages: msgs } = res.data.data;
+      const { messages: msgs, bookingState: bState } = res.data.data;
       setActiveConversationId(id);
+      if (bState) {
+        setBookingState(bState);
+      } else {
+        setBookingState(null);
+      }
       
       const mappedMsgs = mapBackendMessagesToFrontend(msgs, id);
       setMessages([WELCOME_MSG, ...mappedMsgs]);
@@ -271,6 +286,7 @@ const VetConnectPage = () => {
   // ─── New Chat ────────────────────────────────────────────────────────────────
   const handleNewChat = () => {
     setActiveConversationId(null);
+    setBookingState(null);
     setMessages([WELCOME_MSG]);
   };
 
@@ -301,7 +317,21 @@ const VetConnectPage = () => {
   }, [dispatch]);
 
   const handleRegisterPet = (species) => {
-    navigate(`/dashboard/pets?action=add_pet&species=${species}&returnTo=vetconnect`);
+    setAddPetSpecies(species || '');
+    setIsAddPetModalOpen(true);
+  };
+
+  const handlePetSaved = async (petData) => {
+    setIsAddPetModalOpen(false);
+    toast.success('Pet registered successfully.');
+    // Refetch pets so the new pet is available
+    await dispatch(fetchPets());
+    
+    // Send hidden message to AI to trigger re-prompt with new pet list
+    // A small timeout ensures the Redux store has updated before the backend fetches
+    setTimeout(() => {
+      sendRef.current(`I just registered my new pet ${petData.petName}. Please ask me which pet I want to book the appointment for.`, true);
+    }, 500);
   };
 
   return (
@@ -342,11 +372,21 @@ const VetConnectPage = () => {
                 type: 'booking',
                 data: booking
               }]);
+              setBookingState(booking);
             }}
+            bookingState={bookingState}
           />
 
         </div>
       </div>
+      
+      {/* Seamless Add Pet Modal */}
+      <AddPetModal 
+        isOpen={isAddPetModalOpen} 
+        onClose={() => setIsAddPetModalOpen(false)}
+        initialSpecies={addPetSpecies}
+        onSaveSuccess={handlePetSaved}
+      />
     </div>
   );
 };
