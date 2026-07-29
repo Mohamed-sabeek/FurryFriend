@@ -12,6 +12,7 @@ import HealthRecordsPage from './pages/Dashboard/HealthRecords/HealthRecordsPage
 import NutritionPlansPage from './pages/Dashboard/NutritionPlans/NutritionPlansPage';
 import MarketplacePage from './pages/Dashboard/Marketplace/MarketplacePage';
 import GroomingPage from './pages/Dashboard/Grooming/GroomingPage';
+import GroomEaseAIPage from './pages/Dashboard/GroomEaseAI/GroomEaseAIPage';
 import BoardingPage from './pages/Dashboard/Boarding/BoardingPage';
 import ProfilePage from './pages/Dashboard/Profile/ProfilePage';
 import SettingsPage from './pages/Dashboard/Settings/SettingsPage';
@@ -50,6 +51,7 @@ function App() {
             <Route path="nutrition" element={<NutritionPlansPage />} />
             <Route path="marketplace" element={<MarketplacePage />} />
             <Route path="grooming" element={<GroomingPage />} />
+            <Route path="grooming-ai" element={<GroomEaseAIPage />} />
             <Route path="boarding" element={<BoardingPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="settings" element={<SettingsPage />} />

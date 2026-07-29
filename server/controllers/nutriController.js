@@ -30,12 +30,13 @@ exports.getNutritionPlan = async (req, res) => {
     if (!pet) return res.status(404).json({ success: false, error: 'Pet not found' });
 
     const maxPetUpdate = new Date(pet.updatedAt).getTime() || 0;
+    const maxHealthAIUpdate = pet.aiSummaryCached?.generatedAt ? new Date(pet.aiSummaryCached.generatedAt).getTime() : 0;
     const maxRecordUpdate = calculateMaxUpdatedAt(records);
     const maxVaccineUpdate = calculateMaxUpdatedAt(vaccinations);
     const maxMedUpdate = calculateMaxUpdatedAt(medications);
     const maxApptUpdate = calculateMaxUpdatedAt(appointments);
 
-    const lastDataVersionTime = Math.max(maxPetUpdate, maxRecordUpdate, maxVaccineUpdate, maxMedUpdate, maxApptUpdate);
+    const lastDataVersionTime = Math.max(maxPetUpdate, maxHealthAIUpdate, maxRecordUpdate, maxVaccineUpdate, maxMedUpdate, maxApptUpdate);
     
     // Cache Check
     const isCacheValid = latestPlan && latestPlan.dataVersion && new Date(latestPlan.dataVersion).getTime() >= lastDataVersionTime;
@@ -75,69 +76,88 @@ exports.generateNutritionPlan = async (req, res) => {
     if (!pet) return res.status(404).json({ success: false, error: 'Pet not found' });
 
     const maxPetUpdate = new Date(pet.updatedAt).getTime() || 0;
+    const maxHealthAIUpdate = pet.aiSummaryCached?.generatedAt ? new Date(pet.aiSummaryCached.generatedAt).getTime() : 0;
     const maxRecordUpdate = calculateMaxUpdatedAt(records);
     const maxVaccineUpdate = calculateMaxUpdatedAt(vaccinations);
     const maxMedUpdate = calculateMaxUpdatedAt(medications);
     const maxApptUpdate = calculateMaxUpdatedAt(appointments);
 
-    const lastDataVersionTime = Math.max(maxPetUpdate, maxRecordUpdate, maxVaccineUpdate, maxMedUpdate, maxApptUpdate);
+    const lastDataVersionTime = Math.max(maxPetUpdate, maxHealthAIUpdate, maxRecordUpdate, maxVaccineUpdate, maxMedUpdate, maxApptUpdate);
     const lastDataVersionDate = new Date(lastDataVersionTime);
 
-    const systemPrompt = `You are NutriPaws AI, an expert veterinary nutritionist AI agent.
-Your task is to analyze the provided pet health data, including appointment history and water history to spot trends, and generate a highly personalized, structured JSON nutrition plan.
+    const systemPrompt = `You are a certified veterinary nutrition specialist.
+Your task is to create a personalized, production-level nutrition plan based on the pet's complete medical history, latest doctor consultation, and PetHealth AI analysis.
 
-SAFETY CONSTRAINTS:
-- Do not diagnose diseases.
-- Do not prescribe medications.
-- Generate nutritional guidance only.
-- Recommend consulting a veterinarian for medical concerns.
-- NEVER invent allergies, diseases, or medications. If the data does not specify an allergy, do not list one.
-- Only base recommendations on the explicitly provided MongoDB data.
+CRITICAL MEDICAL CONSTRAINTS:
+- You MUST respect the doctor's diagnosis. If the doctor prescribed a specific diet, follow it strictly.
+- Adapt the diet for any diagnosed conditions (e.g., Obesity, Kidney Disease, Diabetes, Allergies).
+- Read every prescribed medicine and identify any food interactions or restrictions.
+- Never invent diseases or allergies. Rely only on the provided MongoDB data.
+- Do not ask the user for information. Everything you need is below.
 
 You MUST respond ONLY with a valid JSON object. Do not include markdown formatting or explanation text outside the JSON.
 
-The JSON must follow this exact structure (replace values with your dynamic content based strictly on the provided data):
+The JSON must follow this exact structure (replace values with your dynamic content based strictly on the data):
 {
-  "dailyCalories": {
-    "target": 900,
-    "current": 1100,
-    "recommendation": "Provide specific recommendation based on actual weight trends."
+  "petSummary": "Brief overview based on age, breed, weight, and general health",
+  "nutritionScore": 85,
+  "currentNutritionStatus": "Detailed explanation of current nutrition status",
+  "targetNutritionGoal": "Specific target goal (e.g., lose 2kg, support joints)",
+  "dailyCalories": { 
+    "target": 900, 
+    "recommendation": "Provide specific recommendation based on actual weight trends" 
   },
-  "waterIntake": {
-    "target": 1800,
-    "recommendation": "Provide hydration advice based on actual water history."
+  "macronutrients": {
+    "protein": "e.g. 25% - High quality protein for muscle maintenance",
+    "fat": "e.g. 15% - Healthy fats for coat health",
+    "carbs": "e.g. 50% - Complex carbohydrates for sustained energy",
+    "fiber": "e.g. 5% - For digestive health"
   },
-  "mealPlan": [
-    { "name": "Breakfast", "time": "8:00 AM", "calories": 400, "food": "Appropriate food suggestion", "quantity": "1.5 cups" },
-    { "name": "Dinner", "time": "7:00 PM", "calories": 500, "food": "Appropriate food suggestion", "quantity": "1.5 cups" }
+  "waterIntake": { 
+    "target": 1800, 
+    "recommendation": "Provide hydration advice based on actual water history and health" 
+  },
+  "mealFrequency": "e.g. 2 meals per day",
+  "portionSize": "e.g. 1.5 cups per meal",
+  "weightManagementAdvice": "Specific advice on managing weight based on the doctor's diagnosis",
+  "doctorDiagnosisSummary": "Summary of the doctor's findings and how they impact nutrition",
+  "nutritionAnalysis": "Intelligent analysis of how the pet's age, breed, weight, and medications affect their diet",
+  "weeklyMealPlan": {
+    "Day 1": { "Breakfast": "...", "Lunch": "...", "Dinner": "...", "Snacks": "...", "WaterIntake": "..." },
+    "Day 2": { "Breakfast": "...", "Lunch": "...", "Dinner": "...", "Snacks": "...", "WaterIntake": "..." },
+    "Day 3": { "Breakfast": "...", "Lunch": "...", "Dinner": "...", "Snacks": "...", "WaterIntake": "..." },
+    "Day 4": { "Breakfast": "...", "Lunch": "...", "Dinner": "...", "Snacks": "...", "WaterIntake": "..." },
+    "Day 5": { "Breakfast": "...", "Lunch": "...", "Dinner": "...", "Snacks": "...", "WaterIntake": "..." },
+    "Day 6": { "Breakfast": "...", "Lunch": "...", "Dinner": "...", "Snacks": "...", "WaterIntake": "..." },
+    "Day 7": { "Breakfast": "...", "Lunch": "...", "Dinner": "...", "Snacks": "...", "WaterIntake": "..." }
+  },
+  "foodsToAvoid": [
+    { "food": "Chocolate", "reason": "Toxic to dogs" }
   ],
-  "weeklySchedule": {
-    "Monday": { "Breakfast": "...", "Dinner": "..." },
-    "Tuesday": { "Breakfast": "...", "Dinner": "..." }
-  },
-  "shoppingList": [
-    { "item": "Example item based on meal plan", "category": "Produce" }
+  "recommendedFoods": [
+    { "food": "Lean Chicken", "reason": "High quality protein, easy to digest" }
   ],
-  "foodsToAvoid": ["List ONLY items based on ACTUAL allergies or standard toxic foods for this species"],
-  "recommendedFoods": ["List appropriate foods"],
   "supplements": [
-    { "name": "Example Supplement", "reason": "Reason strictly based on actual medical condition if any" }
+    { "name": "Omega 3", "reason": "Supports joint health and coat condition" }
   ],
-  "smartAlerts": [
-    "Alerts about actual trends from the data (e.g. low hydration, weight gain)"
-  ],
-  "aiReasoning": [
-    "Explain exactly why you chose this plan based ONLY on the provided data."
-  ]
+  "recoveryDiet": "Specific recovery diet if the pet is recovering from an illness or surgery. Otherwise 'Standard adult diet'.",
+  "longTermGoal": "Long term nutrition strategy",
+  "nutritionConclusion": "A short, reassuring concluding thought",
+  "petCommerceRecommendations": {
+    "categories": ["Premium Dry Food", "Weight Management Diet", "Joint Supplements"],
+    "goals": ["Weight Loss", "Joint Support"]
+  }
 }
 
-Analyze the following data to generate the response:
+Analyze the following cleanly formatted data to generate the response:
 User Preferences: ${JSON.stringify(preferences)}
 Pet Profile: ${JSON.stringify(pet)}
-Medical History: ${JSON.stringify(records)}
+PetHealth AI Report: ${JSON.stringify(pet.aiSummaryCached ? pet.aiSummaryCached.summary : {})}
+Medical History (Consultations): ${JSON.stringify(records)}
+Vaccinations: ${JSON.stringify(vaccinations)}
 Medications: ${JSON.stringify(medications)}
-Appointment History (Look for trends like weight gain): ${JSON.stringify(appointments)}
-Water History (Last 7 days, check for adequate hydration): ${JSON.stringify(waterHistory)}
+Appointment History (Weight trends): ${JSON.stringify(appointments)}
+Water History: ${JSON.stringify(waterHistory)}
 `;
 
     let aiResponse;

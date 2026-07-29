@@ -22,6 +22,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const clinicRoutes = require('./routes/clinicRoutes');
+const groomingRoutes = require('./routes/groomingRoutes');
 
 // Load env vars
 dotenv.config();
@@ -78,6 +79,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/clinic', clinicRoutes);
+app.use('/api/grooming', groomingRoutes);
 
 // 404 handler
 app.use(notFound);

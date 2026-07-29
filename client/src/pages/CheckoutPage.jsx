@@ -179,15 +179,21 @@ const CheckoutPage = () => {
           <h2 className="text-xl font-bold text-gray-900 mb-6">Review Order</h2>
           <div className="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2">
             {cart?.items?.map(item => (
-              <div key={item._id} className="flex items-center justify-between text-sm">
-                 <div className="flex items-center gap-3">
-                    <img src={item.product?.images?.[0]} alt="" className="w-10 h-10 rounded-lg object-contain bg-gray-50 border border-gray-100" />
-                    <div>
-                      <div className="font-semibold text-gray-900 line-clamp-1">{item.product?.name}</div>
-                      <div className="text-gray-500 text-xs">Qty: {item.quantity}</div>
+              <div key={item._id} className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {item.product?.images?.[0] ? (
+                    <img src={item.product.images[0]} alt="" className="w-10 h-10 rounded-lg object-contain bg-gray-50 border border-gray-100" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg bg-gray-50 border border-gray-100 flex items-center justify-center">
+                      <Package size={16} className="text-gray-400" />
                     </div>
-                 </div>
-                 <div className="font-bold text-gray-900">₹{item.price * item.quantity}</div>
+                  )}
+                  <div>
+                    <div className="font-semibold text-gray-900 line-clamp-1">{item.product ? item.product.name : 'Product Unavailable'}</div>
+                    <div className="text-sm text-gray-500">Qty: {item.quantity}</div>
+                  </div>
+                </div>
+                <div className="font-bold text-gray-900">₹{item.price * item.quantity}</div>
               </div>
             ))}
           </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Apple, Droplets, Target, Flame, CheckCircle2, Circle, Lightbulb, RefreshCw, AlertTriangle, ListChecks, Plus, X, ChevronDown } from 'lucide-react';
+import { Apple, Droplets, Target, Flame, CheckCircle2, Circle, Lightbulb, RefreshCw, AlertTriangle, ListChecks, Plus, X, ChevronDown, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SectionHeader from '../../../components/ui/SectionHeader';
 import StatCard from '../../../components/ui/StatCard';
@@ -302,121 +302,127 @@ const NutritionPlansPage = () => {
       ) : (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
           
-          {/* Smart Alerts */}
-          {plan.planData.smartAlerts && plan.planData.smartAlerts.length > 0 && (
-            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 flex gap-3">
-              <AlertTriangle className="text-orange-500 shrink-0 mt-0.5" size={20} />
-              <div>
-                <h4 className="font-bold text-orange-800 text-sm mb-1">Smart AI Alerts</h4>
-                <ul className="text-sm text-orange-700 space-y-1">
-                  {plan.planData.smartAlerts.map((alert, idx) => (
-                    <li key={idx}>• {alert}</li>
-                  ))}
-                </ul>
+          {/* AI Reasoning / Overview */}
+          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 flex gap-4">
+            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shrink-0 shadow-sm">
+              <span className="text-xl font-bold text-primary">{plan.planData.nutritionScore || 85}</span>
+            </div>
+            <div>
+              <h4 className="font-bold text-primary-dark text-lg mb-1">{plan.planData.petSummary}</h4>
+              <p className="text-sm text-gray-700 mb-2">{plan.planData.currentNutritionStatus}</p>
+              <div className="flex items-center gap-2 text-xs font-bold text-primary">
+                <Target size={14} /> Target Goal: {plan.planData.targetNutritionGoal}
               </div>
             </div>
-          )}
+          </div>
 
-          {/* AI Reasoning */}
-          {plan.aiReasoning && plan.aiReasoning.length > 0 && (
-            <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 flex gap-3">
-              <Lightbulb className="text-primary shrink-0 mt-0.5" size={20} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-5 flex gap-3">
+              <Activity className="text-blue-500 shrink-0 mt-0.5" size={20} />
               <div>
-                <h4 className="font-bold text-primary-dark text-sm mb-1">AI Reasoning (Why this plan was created)</h4>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  {plan.aiReasoning.map((reason, idx) => (
-                    <li key={idx}>• {reason}</li>
-                  ))}
-                </ul>
+                <h4 className="font-bold text-blue-800 text-sm mb-1">Doctor's Diagnosis & Medical Context</h4>
+                <p className="text-sm text-blue-700">{plan.planData.doctorDiagnosisSummary}</p>
               </div>
             </div>
-          )}
+            <div className="bg-green-50 border border-green-100 rounded-2xl p-5 flex gap-3">
+              <Lightbulb className="text-green-600 shrink-0 mt-0.5" size={20} />
+              <div>
+                <h4 className="font-bold text-green-800 text-sm mb-1">Nutrition Analysis</h4>
+                <p className="text-sm text-green-700">{plan.planData.nutritionAnalysis}</p>
+              </div>
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <StatCard 
               title="Daily Calories" 
-              value={`${plan.planData.dailyCalories.target} kcal`} 
+              value={`${plan.planData.dailyCalories?.target || 0} kcal`} 
               icon={Flame} 
               color="orange"
             />
             
             {/* Water Tracker Card */}
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex flex-col justify-between">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col justify-between">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                  <Droplets size={20} className="text-blue-500" />
+                <div className="w-8 h-8 rounded-xl bg-blue-50 flex items-center justify-center">
+                  <Droplets size={16} className="text-blue-500" />
                 </div>
                 <div>
                   <p className="text-xs text-gray-500">Water Intake Today</p>
-                  <p className="text-xl font-bold text-gray-800">{waterLogged} / {plan.planData.waterIntake.target} ml</p>
+                  <p className="text-sm font-bold text-gray-800">{waterLogged} / {plan.planData.waterIntake?.target || 0} ml</p>
                 </div>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2 mb-3 mt-2">
-                <div className="bg-blue-500 h-2 rounded-full transition-all" style={{ width: `${Math.min((waterLogged / plan.planData.waterIntake.target) * 100, 100)}%` }}></div>
+              <div className="w-full bg-gray-100 rounded-full h-1.5 mb-2 mt-2">
+                <div className="bg-blue-500 h-1.5 rounded-full transition-all" style={{ width: `${Math.min((waterLogged / (plan.planData.waterIntake?.target || 1)) * 100, 100)}%` }}></div>
               </div>
-              <button onClick={handleWaterLog} className="w-full py-2 bg-blue-50 text-blue-600 rounded-xl text-xs font-bold hover:bg-blue-100 transition-colors">
+              <button onClick={handleWaterLog} className="w-full py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors">
                 + Log 250ml
               </button>
             </div>
 
-            <StatCard 
-              title="Calorie Recommendation" 
-              value={plan.planData.dailyCalories.recommendation || 'Maintain current diet'} 
-              icon={Target} 
-              color="primary"
-            />
+            <div className="md:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Macronutrients</h4>
+              <div className="grid grid-cols-2 gap-y-3 gap-x-4">
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-purple-600">Protein</span>
+                  <span className="text-sm font-medium text-gray-700">{plan.planData.macronutrients?.protein}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-orange-600">Fat</span>
+                  <span className="text-sm font-medium text-gray-700">{plan.planData.macronutrients?.fat}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-green-600">Carbs</span>
+                  <span className="text-sm font-medium text-gray-700">{plan.planData.macronutrients?.carbs}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-emerald-600">Fiber</span>
+                  <span className="text-sm font-medium text-gray-700">{plan.planData.macronutrients?.fiber}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            {/* Daily Meal Plan */}
+            {/* Weekly Meal Plan */}
             <div className="lg:col-span-2 space-y-6">
-              <SummaryCard title="Recommended Meal Plan" icon={Apple}>
-                <div className="relative border-l-2 border-red-100 ml-4 space-y-8 py-4">
-                  {plan.planData.mealPlan && plan.planData.mealPlan.map((meal, idx) => (
-                    <motion.div key={idx} className="relative pl-8">
-                      <div className="absolute -left-[17px] top-2 bg-white rounded-full">
-                        <Circle className="text-gray-300 bg-gray-50 rounded-full" size={32} />
-                      </div>
-                      
-                      <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <span className="text-xs font-bold uppercase tracking-wider text-primary mb-1 block">
-                              {meal.time}
-                            </span>
-                            <h3 className="text-lg font-bold text-gray-800">{meal.name}</h3>
+              <SummaryCard title="7-Day Meal Plan" icon={Apple}>
+                <div className="mt-4 space-y-4">
+                  {plan.planData.weeklyMealPlan && Object.entries(plan.planData.weeklyMealPlan).map(([day, meals], idx) => (
+                    <div key={idx} className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                      <h4 className="font-bold text-gray-800 mb-3 border-b border-gray-200 pb-2">{day}</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {Object.entries(meals).map(([mealType, description], mIdx) => (
+                          <div key={mIdx} className="bg-white p-3 rounded-xl shadow-sm border border-gray-100">
+                            <span className="text-xs font-bold text-primary uppercase">{mealType}</span>
+                            <p className="text-sm text-gray-700 mt-1">{description}</p>
                           </div>
-                          <span className="bg-orange-50 text-orange-600 px-3 py-1 rounded-xl text-xs font-bold">
-                            {meal.calories} kcal
-                          </span>
-                        </div>
-                        
-                        <div className="mt-3 text-sm text-gray-600 space-y-2">
-                          <p className="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                            <strong className="text-gray-700">Food:</strong>
-                            <span className="font-medium text-gray-800 text-right">{meal.food}</span>
-                          </p>
-                          <p className="flex justify-between items-center bg-gray-50 p-2.5 rounded-xl border border-gray-100">
-                            <strong className="text-gray-700">Quantity:</strong>
-                            <span className="font-medium text-gray-800 text-right">{meal.quantity}</span>
-                          </p>
-                        </div>
+                        ))}
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
               </SummaryCard>
               
-              {/* Shopping List */}
-              <SummaryCard title="Weekly Shopping List" icon={ListChecks}>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
-                  {plan.planData.shoppingList && plan.planData.shoppingList.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2 bg-gray-50 border border-gray-100 p-2 rounded-xl">
-                      <div className="w-5 h-5 rounded-md border-2 border-gray-300 shrink-0"></div>
-                      <span className="text-sm text-gray-700 font-medium truncate" title={item.item || item}>{item.item || item}</span>
-                    </div>
-                  ))}
+              <SummaryCard title="General Advice" icon={ListChecks}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  <div className="bg-gray-50 border border-gray-100 p-4 rounded-xl">
+                    <span className="text-xs font-bold text-gray-500 block mb-1">Meal Frequency</span>
+                    <span className="text-sm font-medium text-gray-800">{plan.planData.mealFrequency}</span>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-100 p-4 rounded-xl">
+                    <span className="text-xs font-bold text-gray-500 block mb-1">Portion Size</span>
+                    <span className="text-sm font-medium text-gray-800">{plan.planData.portionSize}</span>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-100 p-4 rounded-xl sm:col-span-2">
+                    <span className="text-xs font-bold text-gray-500 block mb-1">Weight Management</span>
+                    <span className="text-sm font-medium text-gray-800">{plan.planData.weightManagementAdvice}</span>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-100 p-4 rounded-xl sm:col-span-2">
+                    <span className="text-xs font-bold text-gray-500 block mb-1">Recovery Diet (if applicable)</span>
+                    <span className="text-sm font-medium text-gray-800">{plan.planData.recoveryDiet}</span>
+                  </div>
                 </div>
               </SummaryCard>
             </div>
@@ -426,35 +432,51 @@ const NutritionPlansPage = () => {
               
               {/* Recommended Foods */}
               <SummaryCard title="Recommended Foods" icon={CheckCircle2}>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {plan.planData.recommendedFoods && plan.planData.recommendedFoods.map((food, idx) => (
-                    <span key={idx} className="bg-green-50 text-green-700 px-3 py-1.5 rounded-xl text-xs font-bold border border-green-100">
-                      {food}
-                    </span>
+                <div className="space-y-3 mt-4">
+                  {plan.planData.recommendedFoods && plan.planData.recommendedFoods.map((item, idx) => (
+                    <div key={idx} className="bg-green-50 border border-green-100 p-3 rounded-xl">
+                      <h4 className="font-bold text-green-800 text-sm">{item.food}</h4>
+                      <p className="text-xs text-green-700 mt-1">{item.reason}</p>
+                    </div>
                   ))}
                 </div>
               </SummaryCard>
               
               {/* Foods to Avoid */}
               <SummaryCard title="Foods to Avoid" icon={X}>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {plan.planData.foodsToAvoid && plan.planData.foodsToAvoid.map((food, idx) => (
-                    <span key={idx} className="bg-red-50 text-red-700 px-3 py-1.5 rounded-xl text-xs font-bold border border-red-100">
-                      {food}
-                    </span>
+                <div className="space-y-3 mt-4">
+                  {plan.planData.foodsToAvoid && plan.planData.foodsToAvoid.map((item, idx) => (
+                    <div key={idx} className="bg-red-50 border border-red-100 p-3 rounded-xl">
+                      <h4 className="font-bold text-red-800 text-sm">{item.food}</h4>
+                      <p className="text-xs text-red-700 mt-1">{item.reason}</p>
+                    </div>
                   ))}
                 </div>
               </SummaryCard>
 
               {/* Supplements */}
               <SummaryCard title="Supplements" icon={Plus}>
-                <div className="space-y-3 mt-2">
+                <div className="space-y-3 mt-4">
                   {plan.planData.supplements && plan.planData.supplements.map((supp, idx) => (
                     <div key={idx} className="bg-purple-50 border border-purple-100 p-3 rounded-xl">
                       <h4 className="font-bold text-purple-800 text-sm">{supp.name}</h4>
                       <p className="text-xs text-purple-600 mt-1">{supp.reason}</p>
                     </div>
                   ))}
+                </div>
+              </SummaryCard>
+              
+              {/* PetCommerce Integration */}
+              <SummaryCard title="Recommended Products" icon={Target}>
+                <div className="mt-4">
+                  <p className="text-xs text-gray-500 mb-2">Based on your pet's needs, we recommend these product categories from our shop:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {plan.planData.petCommerceRecommendations?.categories?.map((cat, idx) => (
+                      <span key={idx} className="bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-bold border border-gray-200">
+                        {cat}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               </SummaryCard>
 

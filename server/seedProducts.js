@@ -1,71 +1,129 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const Product = require('./models/Product');
+const cloudinary = require('cloudinary').v2;
+const path = require('path');
+const fs = require('fs');
 
 dotenv.config();
 
-const brands = ['Royal Canin', 'Pedigree', 'Drools', 'Farmina', 'Whiskas', 'Sheba', 'Me-O', 'Himalaya', 'Virbac', 'VetLife', 'Kong', 'Trixie', 'Pets Empire', 'PetsPot'];
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-const generateProducts = () => {
-  const products = [];
+const brands = ['Royal Canin', 'Pedigree', 'Drools', 'Farmina', 'Whiskas', 'Sheba', 'Me-O', 'Himalaya', 'Virbac', 'VetLife', 'Kong', 'Trixie'];
+
+// Upload image from the local filesystem to avoid any CDN blocking issues
+const uploadLocalToCloudinary = async (filename, folder = 'petcommerce') => {
+  const filePath = path.join(__dirname, 'mock-images', filename);
   
-  // Base templates for generation
+  if (!fs.existsSync(filePath)) {
+    console.error(`ERROR: Local image not found at ${filePath}`);
+    return null;
+  }
+
+  try {
+    const result = await cloudinary.uploader.upload(filePath, {
+      folder: folder,
+      transformation: [
+        { width: 800, height: 800, crop: "pad", background: "white" }
+      ]
+    });
+    return result.secure_url;
+  } catch (error) {
+    console.error(`Failed to upload local file ${filename} to Cloudinary. Error:`, error.message);
+    return null;
+  }
+};
+
+const generateProducts = async () => {
+  const products = [];
   const templates = [
-    { cat: 'Dog Food', pet: 'Dog', life: 'Adult', desc: 'Premium adult dog food for optimal health.', priceRange: [1500, 4500], img: 'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?w=500&auto=format&fit=crop&q=60', tags: ['dry food', 'adult dog'] },
-    { cat: 'Puppy Food', pet: 'Dog', life: 'Puppy', desc: 'Nutritious puppy food for growth and development.', priceRange: [800, 2500], img: 'https://images.unsplash.com/photo-1591946614720-90a587da4a36?w=500&auto=format&fit=crop&q=60', tags: ['puppy', 'growth', 'dry food'] },
-    { cat: 'Cat Food', pet: 'Cat', life: 'Adult', desc: 'Delicious and healthy adult cat food.', priceRange: [1200, 3500], img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=500&auto=format&fit=crop&q=60', tags: ['dry food', 'adult cat', 'hairball control'] },
-    { cat: 'Kitten Food', pet: 'Cat', life: 'Kitten', desc: 'High protein kitten food for active little ones.', priceRange: [900, 2800], img: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=500&auto=format&fit=crop&q=60', tags: ['kitten', 'high protein'] },
-    { cat: 'Treats', pet: 'Dog', life: 'All Stages', desc: 'Tasty and chewy treats for training and rewards.', priceRange: [150, 600], img: 'https://images.unsplash.com/photo-1623387641177-3140d369a8b1?w=500&auto=format&fit=crop&q=60', tags: ['treats', 'training', 'chews'] },
-    { cat: 'Treats', pet: 'Cat', life: 'All Stages', desc: 'Irresistible treats that cats love.', priceRange: [100, 400], img: 'https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?w=500&auto=format&fit=crop&q=60', tags: ['treats', 'catnip', 'bites'] },
-    { cat: 'Supplements', pet: 'Dog', life: 'Senior', desc: 'Joint support and mobility supplements.', priceRange: [500, 2000], img: 'https://images.unsplash.com/photo-1584362917165-526a968579e8?w=500&auto=format&fit=crop&q=60', tags: ['joints', 'mobility', 'supplements'] },
-    { cat: 'Supplements', pet: 'Cat', life: 'All Stages', desc: 'Skin and coat health supplements.', priceRange: [400, 1500], img: 'https://images.unsplash.com/photo-1548681528-6a5c45b66b42?w=500&auto=format&fit=crop&q=60', tags: ['skin', 'coat', 'omega 3'] },
-    { cat: 'Medicines', pet: 'Dog', life: 'All Stages', desc: 'Flea and tick prevention medication.', priceRange: [300, 1200], img: 'https://images.unsplash.com/photo-1628191010210-a59de33e5941?w=500&auto=format&fit=crop&q=60', tags: ['flea', 'tick', 'prevention'] },
-    { cat: 'Medicines', pet: 'Cat', life: 'All Stages', desc: 'De-worming tablets for cats.', priceRange: [100, 500], img: 'https://images.unsplash.com/photo-1584362917165-526a968579e8?w=500&auto=format&fit=crop&q=60', tags: ['dewormer', 'health'] },
-    { cat: 'Grooming', pet: 'Dog', life: 'All Stages', desc: 'Hypoallergenic dog shampoo for sensitive skin.', priceRange: [250, 800], img: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?w=500&auto=format&fit=crop&q=60', tags: ['shampoo', 'grooming', 'sensitive'] },
-    { cat: 'Toys', pet: 'Dog', life: 'All Stages', desc: 'Durable chew toy for heavy chewers.', priceRange: [300, 1500], img: 'https://images.unsplash.com/photo-1576201836106-db1758fd1c97?w=500&auto=format&fit=crop&q=60', tags: ['toy', 'chew', 'durable'] },
-    { cat: 'Toys', pet: 'Cat', life: 'All Stages', desc: 'Interactive feather wand toy.', priceRange: [150, 600], img: 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?w=500&auto=format&fit=crop&q=60', tags: ['toy', 'interactive', 'feather'] },
-    { cat: 'Accessories', pet: 'Dog', life: 'All Stages', desc: 'Adjustable nylon dog collar.', priceRange: [200, 1000], img: 'https://images.unsplash.com/photo-1601758177266-bc5f38eb18b5?w=500&auto=format&fit=crop&q=60', tags: ['collar', 'accessory', 'walk'] },
-    { cat: 'Beds', pet: 'Dog', life: 'All Stages', desc: 'Orthopedic memory foam dog bed.', priceRange: [1500, 5000], img: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=500&auto=format&fit=crop&q=60', tags: ['bed', 'sleep', 'orthopedic'] },
-    { cat: 'Bowls', pet: 'Cat', life: 'All Stages', desc: 'Stainless steel anti-skid pet bowl.', priceRange: [150, 800], img: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?w=500&auto=format&fit=crop&q=60', tags: ['bowl', 'feeding', 'stainless steel'] },
+    { cat: 'Dog Food', pet: 'Dog', life: 'Adult', baseName: 'Premium Adult Dog Food', desc: 'Complete and balanced nutrition for adult dogs. Enriched with Omega 3 & 6.', priceRange: [1500, 4500], tags: ['dry food', 'adult dog', 'premium'], img: 'dog-food.png' },
+    { cat: 'Dog Food', pet: 'Dog', life: 'Adult', baseName: 'Weight Care Adult Dog Food', desc: 'Formulated to help adult dogs maintain a healthy weight.', priceRange: [1800, 4800], tags: ['weight', 'adult dog', 'diet'], img: 'dog-food.png' },
+    { cat: 'Puppy Food', pet: 'Dog', life: 'Puppy', baseName: 'Healthy Growth Puppy Food', desc: 'High protein nutrition for optimal growth and development in puppies.', priceRange: [800, 2500], tags: ['puppy', 'growth', 'dry food'], img: 'dog-food.png' },
+    { cat: 'Cat Food', pet: 'Cat', life: 'Adult', baseName: 'Indoor Adult Cat Food', desc: 'Specially formulated for indoor cats to reduce hairballs and stool odor.', priceRange: [1200, 3500], tags: ['dry food', 'adult cat', 'indoor'], img: 'cat-food.png' },
+    { cat: 'Cat Food', pet: 'Cat', life: 'Adult', baseName: 'Renal Support Cat Food', desc: 'Veterinary diet formulated to support renal function in chronic kidney disease.', priceRange: [2000, 4500], tags: ['renal', 'adult cat', 'veterinary diet'], img: 'cat-food.png' },
+    { cat: 'Kitten Food', pet: 'Cat', life: 'Kitten', baseName: 'Optimal Growth Kitten Food', desc: 'Nutrient-rich formula for kittens in their first year.', priceRange: [900, 2800], tags: ['kitten', 'high protein', 'growth'], img: 'cat-food.png' },
+    { cat: 'Treats', pet: 'Dog', life: 'All Stages', baseName: 'Dental Care Chews', desc: 'Helps reduce tartar buildup and freshen breath.', priceRange: [150, 600], tags: ['treats', 'dental', 'chews'], img: 'treats.png' },
+    { cat: 'Treats', pet: 'Cat', life: 'All Stages', baseName: 'Salmon Creamy Treats', desc: 'Irresistible creamy salmon treats that cats love.', priceRange: [100, 400], tags: ['treats', 'salmon', 'creamy'], img: 'treats.png' },
+    { cat: 'Supplements', pet: 'Dog', life: 'Senior', baseName: 'Advanced Joint Support', desc: 'Contains Glucosamine and Chondroitin for hip and joint health.', priceRange: [500, 2000], tags: ['joints', 'mobility', 'supplements', 'senior'], img: 'medicine.png' },
+    { cat: 'Supplements', pet: 'Cat', life: 'All Stages', baseName: 'Skin & Coat Omega 3', desc: 'Enhances skin health and produces a shiny, soft coat.', priceRange: [400, 1500], tags: ['skin', 'coat', 'omega 3'], img: 'medicine.png' },
+    { cat: 'Medicines', pet: 'Dog', life: 'All Stages', baseName: 'Flea & Tick Spot-On', desc: 'Fast-acting, long-lasting flea and tick protection.', priceRange: [300, 1200], tags: ['flea', 'tick', 'prevention'], img: 'medicine.png' },
+    { cat: 'Medicines', pet: 'Cat', life: 'All Stages', baseName: 'Broad Spectrum Dewormer', desc: 'Effectively removes common intestinal worms.', priceRange: [100, 500], tags: ['dewormer', 'health'], img: 'medicine.png' },
+    { cat: 'Grooming', pet: 'Dog', life: 'All Stages', baseName: 'Hypoallergenic Oatmeal Shampoo', desc: 'Soothing oatmeal shampoo for sensitive skin.', priceRange: [250, 800], tags: ['shampoo', 'grooming', 'sensitive'], img: 'shampoo.png' },
+    { cat: 'Grooming', pet: 'Cat', life: 'All Stages', baseName: 'Waterless Foaming Cleanser', desc: 'No-rinse foam for quick and easy cat grooming.', priceRange: [300, 700], tags: ['waterless', 'grooming', 'foam'], img: 'shampoo.png' },
+    { cat: 'Toys', pet: 'Dog', life: 'All Stages', baseName: 'Extreme Chew Rubber Toy', desc: 'Ultra-durable rubber toy designed for heavy chewers.', priceRange: [300, 1500], tags: ['toy', 'chew', 'durable'], img: 'toy.png' },
+    { cat: 'Toys', pet: 'Cat', life: 'All Stages', baseName: 'Interactive Feather Wand', desc: 'Engaging feather wand to stimulate your cat hunting instincts.', priceRange: [150, 600], tags: ['toy', 'interactive', 'feather'], img: 'toy.png' },
+    { cat: 'Accessories', pet: 'Dog', life: 'All Stages', baseName: 'Reflective Nylon Harness', desc: 'Comfortable, adjustable harness with reflective strips for night walks.', priceRange: [400, 1500], tags: ['harness', 'accessory', 'walk'], img: 'accessory.png' },
+    { cat: 'Accessories', pet: 'Cat', life: 'All Stages', baseName: 'Ergonomic Ceramic Bowl', desc: 'Whisker-friendly ceramic bowl for comfortable feeding.', priceRange: [200, 800], tags: ['bowl', 'feeding', 'ceramic'], img: 'accessory.png' }
   ];
 
   const conditionsMap = ['Joint Support', 'Digestive Health', 'Skin & Coat', 'Weight Management', 'Dental Care'];
   const nutritionMap = ['High Protein', 'Grain Free', 'Low Fat', 'Hypoallergenic'];
+  const sizeMap = ['1.5kg', '3kg', '10kg', '200ml', '500ml', 'Small', 'Large'];
 
-  let count = 0;
+  console.log('Uploading ultra-realistic packshots to Cloudinary...');
   
-  while (count < 65) { // Generating 65 products
-    templates.forEach((temp, i) => {
+  // Cache the Cloudinary URLs for each local image file so we only upload 7 times.
+  const cloudinaryUrls = {};
+  const imageFiles = ['dog-food.png', 'cat-food.png', 'medicine.png', 'shampoo.png', 'toy.png', 'treats.png', 'accessory.png'];
+  
+  for (const file of imageFiles) {
+    const secureUrl = await uploadLocalToCloudinary(file);
+    if (!secureUrl) {
+       console.error(`FATAL: Could not get a valid Cloudinary URL for ${file}. Aborting generation.`);
+       process.exit(1);
+    }
+    cloudinaryUrls[file] = secureUrl;
+    console.log(`Successfully mapped ${file} -> ${secureUrl}`);
+  }
+
+  for (const template of templates) {
+    let multiplier = 4;
+    if (template.cat.includes('Food')) multiplier = 7;
+    if (template.cat === 'Treats' || template.cat === 'Grooming') multiplier = 5;
+    
+    for (let i = 0; i < multiplier; i++) {
       const brand = brands[Math.floor(Math.random() * brands.length)];
-      const price = Math.floor(Math.random() * (temp.priceRange[1] - temp.priceRange[0]) + temp.priceRange[0]);
+      const size = sizeMap[Math.floor(Math.random() * sizeMap.length)];
+      const price = Math.floor(Math.random() * (template.priceRange[1] - template.priceRange[0]) + template.priceRange[0]);
       const stock = Math.floor(Math.random() * 100) + 10;
-      const rating = (Math.random() * (5 - 3.5) + 3.5).toFixed(1);
+      const rating = (Math.random() * (5 - 3.8) + 3.8).toFixed(1);
       
       const conditions = [];
-      if(Math.random() > 0.5) conditions.push(conditionsMap[Math.floor(Math.random() * conditionsMap.length)]);
+      if(Math.random() > 0.6) conditions.push(conditionsMap[Math.floor(Math.random() * conditionsMap.length)]);
       
       const nutritionGoals = [];
-      if(Math.random() > 0.5) nutritionGoals.push(nutritionMap[Math.floor(Math.random() * nutritionMap.length)]);
+      if(Math.random() > 0.6) nutritionGoals.push(nutritionMap[Math.floor(Math.random() * nutritionMap.length)]);
       
+      const productName = `${brand} ${template.baseName}`;
+      const fullName = `${productName} (${size})`;
+      
+      // Look up the permanently cached Cloudinary URL from our highly realistic pre-uploads
+      const secureUrl = cloudinaryUrls[template.img];
+
       products.push({
-        name: `${brand} ${temp.cat} - ${temp.life} (${count + i})`,
+        name: fullName,
         brand: brand,
-        category: temp.cat,
-        petType: temp.pet,
-        lifeStage: temp.life,
-        description: temp.desc,
-        ingredients: ['Meat', 'Vitamins', 'Minerals', 'Omega 3'],
+        category: template.cat,
+        petType: template.pet,
+        lifeStage: template.life,
+        description: template.desc,
+        ingredients: template.cat.includes('Food') ? ['Chicken', 'Rice', 'Vitamins', 'Minerals', 'Omega 3'] : [],
         price: price,
         stock: stock,
         rating: Number(rating),
-        images: [temp.img],
+        images: [secureUrl],
         conditions: conditions,
         nutritionGoals: nutritionGoals,
-        tags: temp.tags,
+        tags: template.tags,
         isRecommended: Math.random() > 0.8
       });
-      count++;
-    });
+    }
   }
 
   return products;
@@ -84,10 +142,18 @@ const seedDB = async () => {
     await Product.deleteMany();
     console.log('Cleared existing products.');
 
-    const mockProducts = generateProducts();
-    await Product.insertMany(mockProducts);
+    const mockProducts = await generateProducts();
     
-    console.log(`Successfully seeded ${mockProducts.length} products.`);
+    // Final Validation exactly as requested
+    const validatedProducts = mockProducts.filter(p => p.images && p.images[0] && p.images[0].startsWith('http'));
+    
+    if (validatedProducts.length !== mockProducts.length) {
+       console.error(`Validation Failed: ${mockProducts.length - validatedProducts.length} products have missing or invalid URLs.`);
+    }
+
+    await Product.insertMany(validatedProducts);
+    
+    console.log(`Successfully seeded ${validatedProducts.length} hyper-realistic products directly integrated with Cloudinary.`);
     process.exit(0);
   } catch (err) {
     console.error(err);

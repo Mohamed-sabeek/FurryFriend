@@ -249,9 +249,7 @@ const ProfilePage = () => {
               <p className="text-gray-500 font-medium mb-4 flex items-center justify-center gap-1">
                 {user.isVerified ? (
                   <><ShieldCheck size={16} className="text-green-500" /> Verified Member</>
-                ) : (
-                  <span className="text-orange-400">Unverified Member</span>
-                )}
+                ) : null}
               </p>
             </div>
           </motion.div>

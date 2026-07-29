@@ -95,13 +95,21 @@ const MyOrders = () => {
                 <div className="space-y-4">
                   {order.items.map(item => (
                     <div key={item._id} className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gray-50 rounded-lg p-1 shrink-0 border border-gray-100">
-                        <img src={item.product?.images?.[0]} alt="" className="w-full h-full object-contain" />
+                      <div className="w-16 h-16 bg-gray-50 rounded-lg p-1 shrink-0 border border-gray-100 flex items-center justify-center overflow-hidden">
+                        {item.product?.images?.[0] ? (
+                          <img src={item.product.images[0]} alt="" className="w-full h-full object-contain" />
+                        ) : (
+                          <Package size={24} className="text-gray-300" />
+                        )}
                       </div>
                       <div className="flex-1">
-                        <Link to={`/commerce/product/${item.product?._id}`} className="font-bold text-gray-900 hover:text-emerald-600 transition-colors line-clamp-1">
-                          {item.product?.name}
-                        </Link>
+                        {item.product ? (
+                          <Link to={`/commerce/product/${item.product._id}`} className="font-bold text-gray-900 hover:text-emerald-600 transition-colors line-clamp-1">
+                            {item.product.name}
+                          </Link>
+                        ) : (
+                          <span className="font-bold text-gray-500 italic">Product No Longer Available</span>
+                        )}
                         <div className="text-sm text-gray-500 mt-0.5">Qty: {item.quantity}</div>
                       </div>
                       <div className="font-bold text-gray-900">₹{item.price * item.quantity}</div>

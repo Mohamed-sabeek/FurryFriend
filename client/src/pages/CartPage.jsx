@@ -51,14 +51,22 @@ const CartPage = () => {
         <div className="lg:col-span-2 space-y-4">
           {cart.items.map(item => (
             <div key={item._id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-6 relative">
-              <div className="w-24 h-24 bg-gray-50 rounded-xl p-2 shrink-0">
-                <img src={item.product?.images?.[0]} alt={item.product?.name} className="w-full h-full object-contain" />
+              <div className="w-24 h-24 bg-gray-50 rounded-xl p-2 shrink-0 flex items-center justify-center overflow-hidden">
+                {item.product?.images?.[0] ? (
+                  <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-contain" />
+                ) : (
+                  <Package size={32} className="text-gray-300" />
+                )}
               </div>
               <div className="flex-1">
-                <Link to={`/commerce/product/${item.product?._id}`} className="font-bold text-gray-900 hover:text-emerald-600 transition-colors text-lg line-clamp-1">
-                  {item.product?.name}
-                </Link>
-                <div className="text-emerald-600 font-semibold text-sm mb-3">{item.product?.brand}</div>
+                {item.product ? (
+                  <Link to={`/commerce/product/${item.product._id}`} className="font-bold text-gray-900 hover:text-emerald-600 transition-colors text-lg line-clamp-1">
+                    {item.product.name}
+                  </Link>
+                ) : (
+                  <span className="font-bold text-gray-500 italic text-lg line-clamp-1">Product Unavailable</span>
+                )}
+                <div className="text-emerald-600 font-semibold text-sm mb-3">{item.product?.brand || 'Unknown Brand'}</div>
                 <div className="flex items-center justify-between">
                   <div className="font-extrabold text-xl text-gray-900">₹{item.price}</div>
                   <div className="flex items-center gap-4">

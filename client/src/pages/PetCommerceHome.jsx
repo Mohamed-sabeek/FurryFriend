@@ -68,7 +68,7 @@ const PetCommerceHome = () => {
               <p className="text-emerald-600 text-sm font-medium mt-1">Based on Health & Nutrition AI Insights</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {recommendedProducts.map(product => (
               <PetCommerceCard key={product._id} product={product} />
             ))}
@@ -109,7 +109,7 @@ const PetCommerceHome = () => {
             <p className="text-gray-500">Try adjusting your search or category filter.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             {products.map(product => (
               <PetCommerceCard key={product._id} product={product} />
             ))}
