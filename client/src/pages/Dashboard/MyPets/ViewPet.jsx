@@ -306,6 +306,40 @@ const ViewPet = () => {
             </div>
           </div>
 
+          {/* Emergency History */}
+          {pet.emergencyHistory && pet.emergencyHistory.length > 0 && (
+            <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-red-100 mt-6 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -mr-10 -mt-10 z-0"></div>
+              
+              <h3 className="font-poppins font-bold text-gray-800 text-xl mb-6 flex items-center gap-2 relative z-10">
+                <AlertTriangle className="text-red-500" size={24} />
+                Emergency History
+              </h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 relative z-10">
+                {pet.emergencyHistory.map((hist, index) => (
+                  <div key={index} className="bg-white border border-gray-100 p-4 rounded-2xl flex justify-between items-center shadow-sm hover:border-red-200 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-red-50 p-2 rounded-lg text-red-500">
+                        <Activity size={20} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-gray-800 text-sm">Emergency Incident</p>
+                        <p className="text-xs text-gray-500 font-medium">{new Date(hist.date).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => navigate('/dashboard/emergency')}
+                      className="text-xs font-bold text-primary hover:underline"
+                    >
+                      View Report
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Notes */}
           {/* Other Info & Notes */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

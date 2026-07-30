@@ -26,7 +26,8 @@ async function createChatCompletion({
   tools = [],
   tool_choice = 'auto',
   model = null,           // null = use fallback chain
-  temperature = 0.2
+  temperature = 0.2,
+  response_format = null
 }) {
   if (!process.env.GROQ_API_KEY || process.env.GROQ_API_KEY === 'MISSING_API_KEY') {
     throw new Error('GROQ_API_KEY is not configured.');
@@ -43,6 +44,9 @@ async function createChatCompletion({
   if (tools && tools.length > 0) {
     payload.tools = tools;
     payload.tool_choice = tool_choice;
+  }
+  if (response_format) {
+    payload.response_format = response_format;
   }
   // If tools is empty, omit both tools and tool_choice entirely (text-only turn).
 

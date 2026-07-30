@@ -37,6 +37,7 @@ import BoardingDashboard from './pages/Boarding/BoardingDashboard';
 import BoardingAppointments from './pages/Boarding/BoardingAppointments';
 import BoardingProfile from './pages/Boarding/BoardingProfile';
 import TravelPawsPage from './pages/Dashboard/TravelPaws/TravelPawsPage';
+import PetEmergencyPage from './pages/Dashboard/PetEmergency/PetEmergencyPage';
 import './index.css';
 
 function App() {
@@ -62,6 +63,7 @@ function App() {
             <Route path="grooming" element={<GroomingPage />} />
             <Route path="groomsense" element={<GroomEaseAIPage />} />
             <Route path="boarding" element={<TravelPawsPage />} />
+            <Route path="emergency" element={<PetEmergencyPage />} />
             <Route path="store" element={<div className="p-8">Store Feature Coming Soon</div>} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="settings" element={<SettingsPage />} />

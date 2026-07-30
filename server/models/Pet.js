@@ -239,7 +239,18 @@ const petSchema = new mongoose.Schema(
       generatedAt: { type: Date, default: null },
       lastDataVersion: { type: Date, default: null },
       isOutdated: { type: Boolean, default: false }
-    }
+    },
+    latestEmergency: {
+      reportId: { type: mongoose.Schema.Types.ObjectId, ref: 'EmergencyReport' },
+      severity: { type: String },
+      condition: { type: String },
+      date: { type: Date },
+      status: { type: String }
+    },
+    emergencyHistory: [{
+      reportId: { type: mongoose.Schema.Types.ObjectId, ref: 'EmergencyReport' },
+      date: { type: Date }
+    }]
   },
   {
     timestamps: true

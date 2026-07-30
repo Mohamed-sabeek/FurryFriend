@@ -16,7 +16,8 @@ import {
   User, 
   Settings, 
   LogOut,
-  Package
+  Package,
+  AlertTriangle
 } from 'lucide-react';
 import logo from '../../../assets/furryfriend.png';
 import { motion } from 'framer-motion';
@@ -32,6 +33,7 @@ const navItems = [
   { name: 'My Orders', path: '/commerce/orders', icon: Package },
   { name: 'GroomSense AI', path: '/dashboard/groomsense', icon: Scissors },
   { name: 'TravelPaws AI', path: '/dashboard/boarding', icon: Home },
+  { name: 'PetEmergency AI', path: '/dashboard/emergency', icon: AlertTriangle },
   { name: 'Profile', path: '/dashboard/profile', icon: User },
   { name: 'Settings', path: '/dashboard/settings', icon: Settings },
 ];
