@@ -8,6 +8,7 @@ import agentIcon3 from '../../../assets/images/agent-icon-3.png';
 import agentIcon4 from '../../../assets/images/agent-icon-4.png';
 import agentIcon5 from '../../../assets/images/agent-icon-5.png';
 import agentIcon6 from '../../../assets/images/agent-icon-6.png';
+import agentIcon7 from '../../../assets/images/agent-icon-7.png';
 
 const agents = [
   { id: 1, name: 'VetConnect AI', desc: 'Your 24/7 virtual veterinary assistant.', icon: agentIcon1, color: 'from-blue-500/20 to-blue-600/5', border: 'hover:border-blue-300', shadow: 'hover:shadow-blue-500/20', path: '/dashboard/ai' },
@@ -16,6 +17,7 @@ const agents = [
   { id: 4, name: 'GroomEase AI', desc: 'Smart grooming schedules & tips.', icon: agentIcon4, color: 'from-purple-500/20 to-purple-600/5', border: 'hover:border-purple-300', shadow: 'hover:shadow-purple-500/20' },
   { id: 5, name: 'PetCommerce AI', desc: 'Curated shopping for your furry friend.', icon: agentIcon5, color: 'from-orange-500/20 to-orange-600/5', border: 'hover:border-orange-300', shadow: 'hover:shadow-orange-500/20' },
   { id: 6, name: 'TravelPaws AI', desc: 'Stress-free travel & arrangements.', icon: agentIcon6, color: 'from-indigo-500/20 to-indigo-600/5', border: 'hover:border-indigo-300', shadow: 'hover:shadow-indigo-500/20' },
+  { id: 7, name: 'PetEmergency AI', desc: 'Instant visual emergency triage.', icon: agentIcon7, color: 'from-red-500/20 to-red-600/5', border: 'hover:border-red-300', shadow: 'hover:shadow-red-500/20', path: '/dashboard/pet-emergency' },
 ];
 
 const container = {

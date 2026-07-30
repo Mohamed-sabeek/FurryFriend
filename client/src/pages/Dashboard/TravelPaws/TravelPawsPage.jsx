@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Star, Calendar, ShieldCheck, CheckCircle2, AlertTriangle, ChevronRight, Check, Search, ChevronDown, Dog } from 'lucide-react';
+import { MapPin, Star, Calendar, ShieldCheck, CheckCircle2, AlertTriangle, ChevronRight, Check, Search, ChevronDown, Dog, Plane } from 'lucide-react';
 import api from '../../../utils/axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchPets } from '../../../redux/slices/petSlice';
@@ -124,8 +124,9 @@ const TravelPawsPage = () => {
       <div className="flex flex-col md:flex-row gap-6 justify-between items-start md:items-end">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">TravelPaws AI</h1>
-            <span className="px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs font-bold rounded-full shadow-sm">BETA</span>
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+              TravelPaws AI <Plane className="text-primary" size={28} />
+            </h1>
           </div>
           <p className="text-gray-500 font-medium">Smart boarding recommendations and eligibility checks for your pets.</p>
         </div>
