@@ -9,7 +9,9 @@ const {
   getCenterAppointments,
   updateAppointmentStatus,
   completeBoardingStay,
-  getCenterStats
+  getCenterStats,
+  getCenterProfile,
+  updateCenterProfile
 } = require('../controllers/boardingController');
 
 // Customer Routes
@@ -23,5 +25,7 @@ router.get('/center/stats', protect, authorize('boarding'), getCenterStats);
 router.get('/center/appointments', protect, authorize('boarding'), getCenterAppointments);
 router.patch('/center/appointments/:id/status', protect, authorize('boarding'), updateAppointmentStatus);
 router.post('/center/appointments/:id/complete', protect, authorize('boarding'), completeBoardingStay);
+router.get('/center/profile', protect, authorize('boarding'), getCenterProfile);
+router.put('/center/profile', protect, authorize('boarding'), updateCenterProfile);
 
 module.exports = router;

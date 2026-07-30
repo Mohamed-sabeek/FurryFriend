@@ -208,3 +208,50 @@ exports.getCenterStats = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// @desc    Get Boarding Center Profile
+// @route   GET /api/boarding/center/profile
+// @access  Private (Center only)
+exports.getCenterProfile = async (req, res) => {
+  try {
+    const centerId = req.user.boardingCenterId;
+    if (!centerId) return res.status(403).json({ success: false, message: 'Not a boarding center' });
+
+    const center = await BoardingCenter.findById(centerId);
+    if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+
+    res.status(200).json({ success: true, data: center });
+  } catch (error) {
+    console.error('Error getting boarding center profile:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+// @desc    Update Boarding Center Profile
+// @route   PUT /api/boarding/center/profile
+// @access  Private (Center only)
+exports.updateCenterProfile = async (req, res) => {
+  try {
+    const centerId = req.user.boardingCenterId;
+    if (!centerId) return res.status(403).json({ success: false, message: 'Not a boarding center' });
+
+    let center = await BoardingCenter.findById(centerId);
+    if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+
+    center = await BoardingCenter.findByIdAndUpdate(
+      centerId,
+      { $set: req.body },
+      { new: true, runValidators: true }
+    );
+
+    // Also update User profile name if name changed
+    if (req.body.name) {
+      await User.findByIdAndUpdate(req.user.id, { fullName: req.body.name });
+    }
+
+    res.status(200).json({ success: true, data: center });
+  } catch (error) {
+    console.error('Error updating boarding center profile:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};

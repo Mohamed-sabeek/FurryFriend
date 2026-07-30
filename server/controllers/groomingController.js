@@ -388,3 +388,51 @@ exports.completeGrooming = async (req, res) => {
     res.status(500).json({ success: false, error: 'Server error' });
   }
 };
+
+// @desc    Get Grooming Center Profile
+// @route   GET /api/grooming/profile
+// @access  Private (Center only)
+exports.getCenterProfile = async (req, res) => {
+  try {
+    const centerId = req.user.groomingCenterId;
+    if (!centerId) return res.status(403).json({ success: false, message: 'Not a grooming center' });
+
+    const center = await GroomingCenter.findById(centerId);
+    if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+
+    res.status(200).json({ success: true, data: center });
+  } catch (error) {
+    console.error('Error getting center profile:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+// @desc    Update Grooming Center Profile
+// @route   PUT /api/grooming/profile
+// @access  Private (Center only)
+exports.updateCenterProfile = async (req, res) => {
+  try {
+    const centerId = req.user.groomingCenterId;
+    if (!centerId) return res.status(403).json({ success: false, message: 'Not a grooming center' });
+
+    let center = await GroomingCenter.findById(centerId);
+    if (!center) return res.status(404).json({ success: false, message: 'Center not found' });
+
+    center = await GroomingCenter.findByIdAndUpdate(
+      centerId,
+      { $set: req.body },
+      { new: true, runValidators: true }
+    );
+
+    // Also update User profile name if name changed
+    if (req.body.name) {
+      const User = require('../models/User');
+      await User.findByIdAndUpdate(req.user.id, { fullName: req.body.name });
+    }
+
+    res.status(200).json({ success: true, data: center });
+  } catch (error) {
+    console.error('Error updating center profile:', error);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+};

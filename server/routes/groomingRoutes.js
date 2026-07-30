@@ -9,7 +9,9 @@ const {
   getCenterDashboardStats,
   getCenterAppointments,
   updateAppointmentStatus,
-  completeGrooming 
+  completeGrooming,
+  getCenterProfile,
+  updateCenterProfile
 } = require('../controllers/groomingController');
 const { protect } = require('../middleware/auth');
 
@@ -25,5 +27,7 @@ router.get('/center/stats', protect, getCenterDashboardStats);
 router.get('/center/appointments', protect, getCenterAppointments);
 router.patch('/center/appointments/:id/status', protect, updateAppointmentStatus);
 router.post('/center/appointments/:id/complete', protect, completeGrooming);
+router.get('/center/profile', protect, getCenterProfile);
+router.put('/center/profile', protect, updateCenterProfile);
 
 module.exports = router;

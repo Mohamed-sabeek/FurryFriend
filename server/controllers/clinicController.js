@@ -211,3 +211,49 @@ exports.completeAppointment = async (req, res, next) => {
     next(err);
   }
 };
+
+// @desc    Get Clinic Profile
+// @route   GET /api/clinic/profile
+// @access  Private (Clinic only)
+exports.getClinicProfile = async (req, res, next) => {
+  try {
+    const clinicId = req.user.clinicId;
+    if (!clinicId) return res.status(403).json({ success: false, message: 'Not a clinic' });
+
+    const clinic = await Clinic.findById(clinicId);
+    if (!clinic) return res.status(404).json({ success: false, message: 'Clinic not found' });
+
+    res.status(200).json({ success: true, data: clinic });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// @desc    Update Clinic Profile
+// @route   PUT /api/clinic/profile
+// @access  Private (Clinic only)
+exports.updateClinicProfile = async (req, res, next) => {
+  try {
+    const clinicId = req.user.clinicId;
+    if (!clinicId) return res.status(403).json({ success: false, message: 'Not a clinic' });
+
+    let clinic = await Clinic.findById(clinicId);
+    if (!clinic) return res.status(404).json({ success: false, message: 'Clinic not found' });
+
+    clinic = await Clinic.findByIdAndUpdate(
+      clinicId,
+      { $set: req.body },
+      { new: true, runValidators: true }
+    );
+
+    // Also update User profile name if name changed
+    if (req.body.name) {
+      const User = require('../models/User');
+      await User.findByIdAndUpdate(req.user.id, { fullName: req.body.name });
+    }
+
+    res.status(200).json({ success: true, data: clinic });
+  } catch (err) {
+    next(err);
+  }
+};

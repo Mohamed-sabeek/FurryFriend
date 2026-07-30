@@ -6,7 +6,9 @@ const {
   acceptAppointment,
   rejectAppointment,
   completeAppointment,
-  saveConsultation
+  saveConsultation,
+  getClinicProfile,
+  updateClinicProfile
 } = require('../controllers/clinicController');
 const { protect, authorize } = require('../middleware/auth');
 
@@ -23,5 +25,7 @@ router.patch('/appointments/:id/accept', acceptAppointment);
 router.patch('/appointments/:id/reject', rejectAppointment);
 router.patch('/appointments/:id/complete', completeAppointment);
 router.post('/appointments/:id/consultation', saveConsultation);
+router.get('/profile', getClinicProfile);
+router.put('/profile', updateClinicProfile);
 
 module.exports = router;
