@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   AlertTriangle, Siren, Camera, Upload, X, Check, HeartPulse, 
   Activity, ShieldAlert, FileText, ChevronRight, Phone, Clock, 
@@ -37,11 +38,12 @@ const loadingSteps = [
 ];
 
 const mockClinics = [
-  { id: 1, name: 'Paws & Care Emergency Hospital', distance: '1.2 km', rating: 4.8, status: 'Open 24/7', image: '/src/assets/images/boarding-cover.png' },
-  { id: 2, name: 'City Vet Critical Care', distance: '3.5 km', rating: 4.9, status: 'Open 24/7', image: '/src/assets/images/boarding-cover.png' }
+  { id: 1, name: 'Paws & Care Emergency Hospital', distance: '1.2 km', rating: 4.8, status: 'Open 24/7', phone: '+1 555-0198', image: '/src/assets/images/boarding-cover.png' },
+  { id: 2, name: 'City Vet Critical Care', distance: '3.5 km', rating: 4.9, status: 'Open 24/7', phone: '+1 555-0199', image: '/src/assets/images/boarding-cover.png' }
 ];
 
 const PetEmergencyPage = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { pets } = useSelector(state => state.pets);
   
@@ -628,9 +630,9 @@ const PetEmergencyPage = () => {
                           <span className="flex items-center gap-1"><MapPin size={12}/> {clinic.distance}</span>
                           <span className="flex items-center gap-1 text-yellow-500"><Star size={12} className="fill-current"/> {clinic.rating}</span>
                         </div>
-                        <button className="w-full mt-3 bg-primary text-white py-2 rounded-xl text-xs font-bold hover:bg-primary-hover transition-colors flex items-center justify-center gap-1">
+                        <a href={`tel:${clinic.phone}`} className="w-full mt-3 bg-primary text-white py-2 rounded-xl text-xs font-bold hover:bg-primary-hover transition-colors flex items-center justify-center gap-1">
                           <Phone size={12} /> Call Clinic Now
-                        </button>
+                        </a>
                       </div>
                     </div>
                   ))}
@@ -646,7 +648,7 @@ const PetEmergencyPage = () => {
                   {results.kit.map((item, idx) => (
                     <div key={idx} className="bg-gray-50 border border-gray-200 px-3 py-2.5 rounded-xl text-sm font-bold text-gray-700 flex items-center justify-between w-full">
                       {item}
-                      <button className="text-primary hover:underline text-xs">View Product</button>
+                      <button onClick={() => navigate('/commerce')} className="text-primary hover:underline text-xs">View Product</button>
                     </div>
                   ))}
                 </div>
