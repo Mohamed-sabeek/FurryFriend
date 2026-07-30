@@ -9,6 +9,7 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchPets } from '../../../redux/slices/petSlice';
 import toast from 'react-hot-toast';
+import CameraModal from '../../../components/dashboard/PetEmergency/CameraModal';
 import api from '../../../utils/axios';
 
 const emergencyTypes = [
@@ -55,6 +56,10 @@ const PetEmergencyPage = () => {
   const [analysisStep, setAnalysisStep] = useState(0);
   const [results, setResults] = useState(null);
   const [history, setHistory] = useState([]);
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
+
+  // Simple mobile detection
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
 
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -83,6 +88,14 @@ const PetEmergencyPage = () => {
 
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files);
+    addFilesToState(files);
+  };
+
+  const handleCameraCapture = (file) => {
+    addFilesToState([file]);
+  };
+
+  const addFilesToState = (files) => {
     if (images.length + files.length > 3) {
       toast.error('Maximum 3 images allowed for analysis.');
       return;
@@ -264,7 +277,16 @@ const PetEmergencyPage = () => {
                 <input type="file" ref={fileInputRef} className="hidden" multiple accept="image/*" onChange={handleImageUpload} />
               </div>
 
-              <div className="flex-1 border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-red-50/50 hover:border-red-200 transition-colors cursor-pointer group p-6" onClick={() => cameraInputRef.current?.click()}>
+              <div 
+                className="flex-1 border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center text-center bg-gray-50 hover:bg-red-50/50 hover:border-red-200 transition-colors cursor-pointer group p-6" 
+                onClick={() => {
+                  if (isMobile) {
+                    cameraInputRef.current?.click();
+                  } else {
+                    setIsCameraModalOpen(true);
+                  }
+                }}
+              >
                 <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4 group-hover:scale-110 transition-transform">
                   <Camera size={28} className="text-red-500" />
                 </div>
@@ -679,6 +701,13 @@ const PetEmergencyPage = () => {
           </div>
         </div>
       )}
+
+      {/* Camera Modal */}
+      <CameraModal 
+        isOpen={isCameraModalOpen} 
+        onClose={() => setIsCameraModalOpen(false)} 
+        onCapture={handleCameraCapture} 
+      />
 
     </div>
   );
