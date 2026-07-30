@@ -15,10 +15,10 @@ const isPastDue = (appt) => {
 
   if (apptDate < today) return true;
   if (apptDate.getTime() === today.getTime()) {
-    const t = appt.time || '';
-    if (t.includes('Morning') && currentHour >= 12) return true;
-    if (t.includes('Afternoon') && currentHour >= 16) return true;
-    if (t.includes('Evening') && currentHour >= 20) return true;
+    const t = (appt.time || '').toLowerCase();
+    if (t.includes('morning') && currentHour >= 12) return true;
+    if (t.includes('afternoon') && currentHour >= 16) return true;
+    if (t.includes('evening') && currentHour >= 20) return true;
   }
   return false;
 };
@@ -33,11 +33,15 @@ exports.getAppointments = async (req, res, next) => {
       .populate('healthRecordId')
       .sort({ date: -1 });
 
-    // Auto-complete past appointments
+    // Auto-complete or cancel past appointments
     const savePromises = [];
     for (let a of all) {
       if (['Pending', 'Confirmed', 'Checked In'].includes(a.status) && isPastDue(a)) {
-        a.status = 'Completed';
+        if (a.status === 'Pending') {
+          a.status = 'Cancelled'; // Expire pending appointments that passed
+        } else {
+          a.status = 'Completed';
+        }
         savePromises.push(a.save());
       }
     }
