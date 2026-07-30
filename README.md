@@ -333,5 +333,5 @@ This project is licensed under the **MIT License**.
 
 **[Mohamed Sabeek]**
 - GitHub: [@Mohamed-sabeek](https://github.com/Mohamed-sabeek)
-- LinkedIn: [Your Profile](https://linkedin.com/in/yourprofile)
-- Portfolio: [Your Website](https://yourwebsite.com)
+- LinkedIn: https://www.linkedin.com/in/mohamed-sabeek-1a272a327/
+- Portfolio: https://myportfolio-alpha-gules-77.vercel.app/
